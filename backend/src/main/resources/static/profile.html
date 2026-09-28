@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!-- FinSight File Notes: Defines the Financial Profile and Settings interface for first-time setup and later profile updates. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financial Profile | FinSight</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/responsive.css">
+</head>
+<body class="app-page route-checking">
+  <div id="appShell"></div>
+  <main class="app-main">
+    <div class="page-title-row">
+      <div>
+        <span class="eyebrow">PROFILE & SETTINGS</span>
+        <h1>Financial Profile & Settings</h1>
+        <p>Tell FinSight about your financial situation before reviewing your insights.</p>
+      </div>
+    </div>
+
+    <form id="profileForm" class="form-stack" novalidate>
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Personal Information</h2>
+            <p class="muted">These details provide context for financial behaviour, recommendations and alerts.</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <label>Financial Goal Period (months) *
+            <input id="financialGoalMonths" type="number" min="1" max="120" required value="6" step="1">
+            <small class="field-help">How many months you are planning toward your financial goal.</small>
+          </label>
+
+          <label>Occupation *
+            <select id="occupationType" required>
+              <option value="">Select occupation type</option>
+              <option value="STUDENT">Student</option>
+              <option value="EMPLOYEE">Employee</option>
+              <option value="OTHER">Others</option>
+            </select>
+            <small class="field-help">Select Others for occupations that are not Student or Employee.</small>
+          </label>
+        </div>
+
+        <div id="studentFields" class="profile-section hidden">
+          <h3>Student Details</h3>
+          <p class="muted">These details help FinSight understand your available student income and situation.</p>
+          <div class="form-grid">
+            <label>Institution *<input id="institution" placeholder="University / College"></label>
+            <label>Course *<input id="course" placeholder="Course name"></label>
+            <label>Study Year *<input id="studyYear" type="number" min="1" max="20" step="1" placeholder="1"></label>
+            <label>Monthly Allowance *<input id="monthlyAllowance" type="number" min="0" step="0.01" placeholder="RM"></label>
+          </div>
+          <label class="check-row"><input id="receivesScholarship" type="checkbox"><span><strong>Receive scholarship</strong><small>Tick this if you currently receive scholarship support.</small></span></label>
+        </div>
+
+        <div id="employeeFields" class="profile-section hidden">
+          <h3 id="employmentDetailsTitle">Employee Details</h3>
+          <p class="muted">Provide the details relevant to your occupation.</p>
+          <div class="form-grid">
+            <label>Occupation *<input id="occupation" placeholder="e.g. Software Engineer"></label>
+            <label id="companyNameWrap">Company Name *<input id="companyName" placeholder="Company"></label>
+            <label id="monthlySalaryWrap">Monthly Salary *<input id="monthlySalary" type="number" min="0" step="0.01" placeholder="RM"></label>
+          </div>
+          <label class="check-row" id="sideIncomeWrap"><input id="hasSideIncome" type="checkbox"><span><strong>Have side income</strong><small>Tick this if you regularly receive income outside your main salary.</small></span></label>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Monthly Budget</h2>
+            <p class="muted">Set a separate spending budget for each month. Different months can have different amounts.</p>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <label>Budget Year
+            <select id="budgetYear" aria-label="Budget year"></select>
+            <small class="field-help">Choose the year for the January–December budget fields below.</small>
+          </label>
+        </div>
+
+        <div id="monthlyBudgetFields" class="monthly-budget-grid"></div>
+        <div id="budgetMessage" class="form-message"></div>
+      </section>
+
+      <div id="formMessage" class="form-message"></div>
+      <div class="form-actions profile-form-actions">
+        <button class="btn btn-dark" type="submit" id="profileSubmitButton">Save & Continue to Dashboard <i class="bi bi-arrow-right"></i></button>
+      </div>
+    </form>
+
+    <section class="panel hidden" id="passwordPanel">
+      <div class="panel-header"><div><h2>Change Password</h2><p class="muted">Use your current password to set a new password for your FinSight account.</p></div></div>
+      <form id="passwordForm" class="form-stack">
+        <div class="form-grid">
+          <label>Current Password *<input id="currentPassword" type="password" minlength="6" required placeholder="Current password"></label>
+          <label>New Password *<input id="newPassword" type="password" minlength="6" required placeholder="At least 6 characters"></label>
+          <label>Confirm New Password *<input id="confirmPassword" type="password" minlength="6" required placeholder="Re-enter new password"></label>
+        </div>
+        <div id="passwordMessage" class="form-message"></div>
+        <div class="form-actions"><button class="btn btn-dark" type="submit">Change Password <i class="bi bi-shield-lock"></i></button></div>
+      </form>
+    </section>
+  </main>
+
+  <div id="robotAlertMount"></div><div id="userGuideMount"></div>
+  <script src="js/api.js"></script><script src="js/common.js"></script><script src="js/user-guide.js"></script><script src="js/alerts.js"></script><script src="js/profile.js"></script><script src="js/password.js"></script>
+</body>
+</html>

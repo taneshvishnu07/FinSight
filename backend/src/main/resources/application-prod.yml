@@ -1,0 +1,32 @@
+# FinSight File Notes: Contains application configuration values and environment-variable mappings for this deployment profile.
+spring:
+
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+    show-sql: false
+    open-in-view: false
+
+
+server:
+  port: ${PORT:8080}
+
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: ${JWT_EXPIRATION:86400000}
+
+
+
+finsight:
+  currency:
+    code: MYR
+    symbol: RM
+  ai-service:
+    url: ${FINSIGHT_AI_SERVICE_URL:http://127.0.0.1:8000}

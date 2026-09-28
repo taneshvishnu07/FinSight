@@ -1,0 +1,3 @@
+# FinSight File Notes: Defines Git attributes used to keep line endings and file handling consistent.
+/mvnw text eol=lf
+*.cmd text eol=crlf

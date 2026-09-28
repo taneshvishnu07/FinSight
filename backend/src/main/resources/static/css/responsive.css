@@ -1,0 +1,10 @@
+/* FinSight File Notes: Contains the visual styling and responsive layout rules used by the FinSight web interface. */
+@media(max-width:1000px){
+  :root{--sidebar:215px}.app-page .app-main{padding:28px 24px}.metric-grid{grid-template-columns:repeat(2,1fr)}.agent-grid{grid-template-columns:repeat(2,1fr)}
+  .hero-section{grid-template-columns:1fr;padding-top:70px}.hero-copy h1{font-size:48px}.feature-grid{grid-template-columns:1fr}.steps-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:720px){
+  :root{--sidebar:0px}.sidebar{width:100%;height:auto;bottom:auto;position:relative;border-right:0;border-bottom:1px solid var(--line);padding:12px 15px}.sidebar-nav{display:flex;overflow:auto;margin-top:15px}.sidebar-nav a{white-space:nowrap}.sidebar-bottom{display:none}
+  .app-page .app-main{margin-left:0;padding:24px 15px}.page-title-row{flex-direction:column}.page-title-row .btn{align-self:flex-start}.dashboard-grid,.report-grid,.recommendation-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.form-section{grid-template-columns:1fr}.section-number{display:none}.upload-info-grid{grid-template-columns:1fr}.agent-grid{grid-template-columns:1fr}.metric-grid{grid-template-columns:1fr 1fr}.robot-alert{right:12px;bottom:12px;width:calc(100% - 24px)}.landing-nav{padding:0 20px}.landing-nav nav>a:not(.btn){display:none}.hero-section{padding:60px 20px;gap:35px}.hero-copy h1{font-size:42px}.section-block{padding:60px 20px}.steps-grid{grid-template-columns:1fr}.landing-footer{padding:20px;display:grid;gap:6px}
+}
+@media(max-width:440px){.metric-grid{grid-template-columns:1fr}.auth-shell{padding:12px}.auth-card{padding:27px 20px}}

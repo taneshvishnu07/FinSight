@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!-- FinSight File Notes: Defines the transaction-history page with monthly grouping and collapse controls. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transactions | FinSight</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/responsive.css">
+</head>
+<body class="app-page">
+  <div id="appShell"></div>
+  <main class="app-main">
+    <div class="page-title-row"><div><span class="eyebrow">DATA</span><h1>Upload Transaction File</h1><p>Upload at least 3 months of transaction data for meaningful analysis.</p></div></div>
+    <section class="upload-panel">
+      <div class="drop-zone" id="dropZone"><i class="bi bi-cloud-arrow-up"></i><h2>Drag and drop your file here</h2><p>CSV files are supported. The current backend requires one CSV containing at least 3 months of transaction history.</p><label class="btn btn-light file-button">Browse CSV File<input id="fileInput" type="file" accept=".csv" hidden></label><p id="selectedFile" class="selected-file">No file selected</p><div id="fileValidation" class="file-validation hidden" aria-live="polite"><div id="formatCheck" class="validation-check"><i class="bi bi-circle"></i><span>File format</span><strong>Not checked</strong></div><div id="monthsCheck" class="validation-check"><i class="bi bi-circle"></i><span>Transaction period</span><strong>Not checked</strong></div><div id="columnsCheck" class="validation-check"><i class="bi bi-circle"></i><span>Required columns</span><strong>Not checked</strong></div></div></div>
+      <div class="upload-info-grid"><div><span>Required period</span><strong>3+ months</strong></div><div><span>Recommended</span><strong>6 - 12 months</strong></div><div><span>Analysis</span><strong>Automatic</strong></div></div>
+      <div id="uploadMessage" class="form-message"></div>
+      <div class="form-actions"><button id="cancelUpload" class="btn btn-light">Clear</button><button id="uploadButton" class="btn btn-dark">Start Analysis <i class="bi bi-arrow-right"></i></button></div>
+    </section>
+
+    <section class="panel" id="allTransactions"><div class="panel-header"><div><h2>All Transactions</h2><p class="muted">Transaction records grouped by month. Expand or collapse individual months, or use the controls below.</p></div><div class="transaction-collapse-actions"><button type="button" id="collapseAllTransactions" class="btn btn-light btn-sm">Collapse all</button></div></div><div class="table-scroll"><table><thead><tr><th colspan="5">Transaction history</th></tr></thead><tbody id="allTransactionsBody"><tr><td colspan="5">Loading transactions...</td></tr></tbody></table></div></section>
+    <section class="panel"><div class="panel-header"><div><h2>Recent Upload Activity</h2><p class="muted">Your latest transaction files.</p></div></div><div class="table-scroll"><table><thead><tr><th>File</th><th>Date</th><th>Transactions</th><th>Status</th></tr></thead><tbody id="uploadHistory"></tbody></table></div></section>
+  </main>
+  <div id="userGuideMount"></div>
+  <script src="js/api.js"></script><script src="js/common.js"></script><script src="js/user-guide.js"></script><script src="js/alerts.js"></script><script src="js/transactions.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+# FinSight File Notes: Selects the Spring profile and shared application defaults.
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+finsight:
+  currency:
+    code: MYR
+    symbol: RM
+  ai-service:
+    url: ${FINSIGHT_AI_SERVICE_URL:http://127.0.0.1:8000}

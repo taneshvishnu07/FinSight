@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<!-- FinSight File Notes: Defines the subscription-analysis page. -->
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Subscriptions | FinSight</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"><link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/responsive.css"></head>
+<body class="app-page"><div id="appShell"></div><main class="app-main">
+<div class="page-title-row"><div><span class="eyebrow">HIDDEN COSTS</span><h1>Subscriptions</h1><p>Recurring costs detected from your transaction history.</p></div></div>
+<section class="metric-grid compact"><div class="metric-card"><span>Active subscriptions</span><strong id="subscriptionCount">0</strong></div><div class="metric-card"><span>Monthly cost</span><strong id="monthlyCost">RM0</strong></div><div class="metric-card"><span>Yearly cost</span><strong id="yearlyCost">RM0</strong></div></section>
+<section class="panel"><div class="panel-header"><div><h2>Detected Subscriptions</h2><p class="muted">Review recurring payments before they become forgotten expenses.</p></div></div><div id="subscriptionList" class="subscription-list"></div></section>
+</main><script src="js/api.js"></script><script src="js/common.js"></script><script src="js/user-guide.js"></script><script src="js/alerts.js"></script><script src="js/subscriptions.js"></script></body></html>

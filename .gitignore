@@ -1,0 +1,34 @@
+# FinSight File Notes: Keeps generated files, local settings, caches, and secrets out of Git.
+
+# IDE and editor files
+.vscode/
+.idea/
+*.iml
+
+# Java / Maven generated files
+**/target/
+**/*.class
+
+# Python generated files
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+**/.venv/
+**/venv/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+**/.env
+
+# Logs and operating-system files
+*.log
+.DS_Store
+Thumbs.db
+
+# Local data exports
+*.sqlite
+*.db
+
+# Keep the trained model and project test CSV files under version control.

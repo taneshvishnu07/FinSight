@@ -1,0 +1,8 @@
+# FinSight File Notes: Backend-specific ignore rules. The repository root .gitignore contains the shared rules.
+
+target/
+.idea/
+.vscode/
+*.iml
+*.class
+.env

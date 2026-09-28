@@ -1,0 +1,7 @@
+# FinSight File Notes: Keeps Python caches, virtual environments, and secrets out of Git.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.env

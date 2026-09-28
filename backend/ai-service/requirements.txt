@@ -1,0 +1,9 @@
+# FinSight File Notes: Pinned Python runtime dependencies for repeatable local and Railway deployments.
+fastapi==0.128.2
+uvicorn[standard]==0.48.0
+pandas==2.2.3
+numpy==2.3.5
+# The included transaction model was trained with scikit-learn 1.9.0.
+scikit-learn==1.9.0
+joblib==1.5.3
+pydantic==2.13.4

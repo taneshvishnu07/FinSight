@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<!-- FinSight File Notes: Defines the main dashboard used to summarise the latest financial analysis. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | FinSight</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/responsive.css">
+</head>
+<body class="app-page">
+  <div id="appShell"></div>
+  <main class="app-main">
+    <div class="page-title-row"><div><span class="eyebrow">OVERVIEW</span><h1>Welcome, <span id="userName">there</span></h1><p>Here is a quick view of your latest financial activity.</p></div><a href="transactions.html" class="btn btn-dark"><i class="bi bi-upload"></i> Upload Transactions</a></div>
+
+    <section class="metric-grid">
+      <div class="metric-card"><span>Total Income</span><strong id="incomeValue">RM0.00</strong><small>Latest analysis</small></div>
+      <div class="metric-card"><span>Total Expenses</span><strong id="expenseValue">RM0.00</strong><small>Latest analysis</small></div>
+      <div class="metric-card"><span>Total Savings</span><strong id="savingsValue">RM0.00</strong><small>Income minus expenses</small></div>
+      <div class="metric-card"><span>Largest Expense (Excluding Essential)</span><strong id="largestExpense">RM0.00</strong><small id="largestExpenseLabel">—</small></div>
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="panel">
+        <div class="panel-header"><div><h2>Spending by Category</h2><p class="muted">Where your money went in the latest analysis.</p></div></div>
+        <div class="chart-wrap donut-wrap dashboard-donut"><canvas id="categoryChart"></canvas></div>
+        <div id="categoryChartLegend" class="category-legend" aria-label="Spending category values"></div>
+      </article>
+      <article class="panel compact-chart-panel">
+        <div class="panel-header"><div><h2>Monthly Spending Trend</h2><p class="muted">How your total expenses changed each month.</p></div></div>
+        <div class="chart-wrap compact-trend"><canvas id="trendChart"></canvas></div>
+      </article>
+      <article class="panel comparison-panel">
+        <div class="panel-header"><div><h2>Monthly Comparison Analysis</h2><p class="muted">A simple month-to-month explanation of your savings and every spending category.</p></div></div>
+        <div id="monthlyComparison" class="comparison-list"><p class="muted">Loading comparison...</p></div>
+      </article>
+      <article class="panel compact-chart-panel">
+        <div class="panel-header"><div><h2>Monthly Savings Rate</h2><p class="muted">The percentage of monthly income that remained after expenses.</p></div></div>
+        <div class="chart-wrap compact-trend"><canvas id="monthlySavingsRateChart"></canvas></div>
+      </article>
+    </section>
+
+    <section class="panel"><div class="panel-header"><div><h2>Recent Transactions</h2><p class="muted">Latest records from your transaction history.</p></div><a href="transactions.html#allTransactions" class="text-link">View all</a></div><div class="table-scroll"><table><thead><tr><th>Date</th><th>Description</th><th>Category</th><th>Amount</th><th>Type</th></tr></thead><tbody id="recentTransactions"></tbody></table></div></section>
+  </main>
+  <div id="robotAlertMount"></div>
+  <div id="userGuideMount"></div>
+  <script src="js/api.js"></script><script src="js/common.js"></script><script src="js/user-guide.js"></script><script src="js/alerts.js"></script><script src="js/dashboard.js"></script>
+</body>
+</html>

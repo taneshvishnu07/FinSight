@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<!-- FinSight File Notes: Defines the detailed financial report with charts, forecasts, insights, recommendations, and alerts. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financial Report | FinSight</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/responsive.css">
+</head>
+<body class="app-page">
+  <div id="appShell"></div>
+  <main class="app-main">
+    <div class="page-title-row"><div><span class="eyebrow">FINANCIAL REPORT</span><h1>Financial Report</h1><p>Your latest financial behaviour analysis in one place.</p></div><button id="refreshReport" class="btn btn-light"><i class="bi bi-arrow-clockwise"></i> Refresh</button></div>
+    <section class="metric-grid compact"><div class="metric-card"><span>Total Income</span><strong id="incomeValue">RM0</strong></div><div class="metric-card"><span>Total Expenses</span><strong id="expenseValue">RM0</strong></div><div class="metric-card"><span>Total Savings</span><strong id="savingsValue">RM0</strong></div><div class="metric-card"><span>Avg. Expense</span><strong id="averageValue">RM0</strong></div></section>
+    <section class="dashboard-grid report-grid"><article class="panel"><div class="panel-header"><h2>Monthly Spending Trend</h2></div><div class="chart-wrap compact-trend report-trend"><canvas id="reportTrend"></canvas></div></article><article class="panel"><div class="panel-header"><h2>Spending Mix</h2></div><div class="chart-wrap donut-wrap"><canvas id="reportCategory"></canvas></div><div id="reportCategoryLegend" class="category-legend" aria-label="Spending mix category values"></div></article></section>
+    <section class="panel"><div class="panel-header"><div><h2>Upcoming Expense Forecast</h2><p class="muted">A short-term estimate based on your transaction history.</p></div></div><div class="table-scroll"><table><thead><tr><th>Month</th><th>Forecast</th><th>Expected range</th></tr></thead><tbody id="forecastTable"><tr><td colspan="3">Loading forecast...</td></tr></tbody></table></div></section>
+    <section class="panel"><div class="panel-header"><div><h2>Key Insights</h2><p class="muted">Short summaries you can act on.</p></div></div><div id="keyInsights" class="insight-list"></div></section>
+    <section class="dashboard-grid"><article class="panel"><div class="panel-header"><h2>Recommendations</h2><a href="recommendations.html" class="text-link">View all</a></div><div id="recommendationPreview" class="mini-list"></div></article><article class="panel"><div class="panel-header"><h2>Alerts</h2><a href="alerts.html" class="text-link">View all</a></div><div id="alertPreview" class="mini-list"></div></article></section>
+  </main>
+  <div id="robotAlertMount"></div>
+  <script src="js/api.js"></script><script src="js/common.js"></script><script src="js/user-guide.js"></script><script src="js/alerts.js"></script><script src="js/report.js"></script>
+</body>
+</html>
