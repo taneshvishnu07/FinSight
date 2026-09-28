@@ -123,6 +123,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const data = await API.getProfile();
       profileExists = true;
       localStorage.setItem("finsight_profile_completed", "true");
+      localStorage.setItem("finsight_profile_verified_at", String(Date.now()));
       qs("#passwordPanel")?.classList.remove("hidden");
       qs(".page-title-row .eyebrow") && (qs(".page-title-row .eyebrow").textContent = "PROFILE & SETTINGS");
       qs(".page-title-row h1") && (qs(".page-title-row h1").textContent = "Financial Profile & Settings");
@@ -146,6 +147,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
       profileExists = false;
       localStorage.setItem("finsight_profile_completed", "false");
+      localStorage.removeItem("finsight_profile_verified_at");
       qs(".page-title-row .eyebrow") && (qs(".page-title-row .eyebrow").textContent = "GET STARTED");
       qs(".page-title-row h1") && (qs(".page-title-row h1").textContent = "Setting Up Financial Profile");
       qs(".page-title-row p") && (qs(".page-title-row p").textContent = "Complete your personal information and monthly budgets to unlock the FinSight dashboard.");
@@ -214,6 +216,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       localStorage.setItem("finsight_profile_completed", "true");
+      localStorage.setItem("finsight_profile_verified_at", String(Date.now()));
 
       if (creatingProfile) {
         setMessage(message, "Profile and monthly budgets saved successfully. Opening your dashboard...", true);

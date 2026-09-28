@@ -26,20 +26,45 @@ public class AiServiceHealthClient {
     }
 
     public void requireAvailable() {
-        try {
-            ResponseEntity<String> response = restClient.get()
-                    .uri("/health")
-                    .retrieve()
-                    .toEntity(String.class);
-            if (!response.getStatusCode().is2xxSuccessful()) {
-                throw new IllegalStateException("FinSight AI service is unavailable at " + baseUrl + ".");
+        RestClientException lastException = null;
+
+        // The AI container may still be starting when the user immediately begins
+        // an analysis. Retry briefly before reporting a deployment/network failure.
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            try {
+                ResponseEntity<String> response = restClient.get()
+                        .uri("/health")
+                        .retrieve()
+                        .toEntity(String.class);
+
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    return;
+                }
+
+                throw new IllegalStateException(
+                        "FinSight AI service returned HTTP " + response.getStatusCode().value()
+                                + " from " + baseUrl + "."
+                );
+            } catch (RestClientException exception) {
+                lastException = exception;
+                if (attempt < 3) {
+                    try {
+                        Thread.sleep(1000L);
+                    } catch (InterruptedException interruptedException) {
+                        Thread.currentThread().interrupt();
+                        throw new IllegalStateException(
+                                "The FinSight AI service health check was interrupted.",
+                                interruptedException
+                        );
+                    }
+                }
             }
-        } catch (RestClientException exception) {
-            throw new IllegalStateException(
-                    "FinSight AI service could not be reached at " + baseUrl
-                            + ". Start the Python service with: python -m uvicorn app.main:app --reload --port 8000",
-                    exception
-            );
         }
+
+        throw new IllegalStateException(
+                "FinSight AI service could not be reached at " + baseUrl
+                        + ". Check that the Railway AI service is deployed and listening on port 8000.",
+                lastException
+        );
     }
 }

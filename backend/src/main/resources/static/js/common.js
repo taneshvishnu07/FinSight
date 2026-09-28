@@ -27,6 +27,7 @@ function logout() {
   localStorage.removeItem("finsight_last_analysis");
   localStorage.removeItem("finsight_last_alerts");
   localStorage.removeItem("finsight_profile_completed");
+  localStorage.removeItem("finsight_profile_verified_at");
   localStorage.removeItem("finsight_analysis_running");
   localStorage.removeItem("finsight_analysis_upload_id");
   localStorage.removeItem("finsight_dismissed_alert_ids");
@@ -153,37 +154,42 @@ async function enforceProfileGate() {
   if (!document.body.classList.contains("app-page")) return;
   if (!requireAuth()) return;
 
-  document.body.classList.add("route-checking");
+  const completed = localStorage.getItem("finsight_profile_completed") === "true";
+  const verifiedAt = Number(localStorage.getItem("finsight_profile_verified_at") || 0);
+  const profileCacheFresh = completed && Number.isFinite(verifiedAt)
+    && (Date.now() - verifiedAt) < (5 * 60 * 1000);
 
+  // Profile data is loaded by profile.js itself. Avoid a duplicate request here.
   if (page === "profile.html") {
-    // Keep every other section locked while the profile is incomplete.
-    renderShell(false);
-    try {
-      await API.getProfile();
-      localStorage.setItem("finsight_profile_completed", "true");
-      renderShell(true);
-    } catch (error) {
-      localStorage.setItem("finsight_profile_completed", "false");
-    }
-    document.body.classList.remove("route-checking");
+    renderShell(completed);
     return;
   }
 
+  // Most page changes can render immediately from the cached profile state.
+  // The backend still enforces authentication and ownership on every API call.
+  if (profileCacheFresh) {
+    renderShell(true);
+    return;
+  }
+
+  document.body.classList.add("route-checking");
   try {
     await API.getProfile();
     localStorage.setItem("finsight_profile_completed", "true");
+    localStorage.setItem("finsight_profile_verified_at", String(Date.now()));
     renderShell(true);
-    document.body.classList.remove("route-checking");
   } catch (error) {
     if ((error.status === 400 || error.status === 404) && /financial profile not found/i.test(error.message || "")) {
       localStorage.setItem("finsight_profile_completed", "false");
+      localStorage.removeItem("finsight_profile_verified_at");
       location.replace("profile.html");
       return;
     }
-    document.body.classList.remove("route-checking");
-    renderShell(true);
+    renderShell(completed);
     const status = qs("#analysisStatus") || qs("#uploadMessage") || qs("#keyInsights");
     if (status) setMessage(status, error.message || "Unable to verify your financial profile.");
+  } finally {
+    document.body.classList.remove("route-checking");
   }
 }
 

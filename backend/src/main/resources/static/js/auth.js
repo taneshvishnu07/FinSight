@@ -85,6 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setToken(data.token);
       saveUser({ userId: data.userId, fullName: data.fullName, email: data.email });
       localStorage.setItem("finsight_profile_completed", String(!!data.profileCompleted));
+      localStorage.setItem("finsight_profile_verified_at", String(Date.now()));
       localStorage.removeItem("finsight_first_login_pending");
 
       location.href = data.profileCompleted ? "dashboard.html" : "profile.html";

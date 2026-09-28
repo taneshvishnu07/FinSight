@@ -36,11 +36,25 @@ public final class AiServiceUrlResolver {
         try {
             URI uri = new URI(url);
             String host = uri.getHost();
-            if (host != null && isLoopback(host)) {
-                int port = uri.getPort() > 0 ? uri.getPort() : 8000;
-                // Always use the loopback IPv4 address for local AI service calls.
-                // This avoids accidental HTTPS/TLS and localhost IPv6/proxy issues.
-                return "http://127.0.0.1:" + port;
+            if (host != null) {
+                if (isLoopback(host)) {
+                    int port = uri.getPort() > 0 ? uri.getPort() : 8000;
+                    // Always use the loopback IPv4 address for local AI service calls.
+                    // This avoids accidental HTTPS/TLS and localhost IPv6/proxy issues.
+                    return "http://127.0.0.1:" + port;
+                }
+
+                // Railway private networking requires an explicit application port.
+                // If a reference such as http://ai.railway.internal:${{ai.PORT}} is
+                // resolved with an empty PORT value, the result can become
+                // http://ai.railway.internal: . The FinSight AI container listens on
+                // port 8000, so normalise an HTTP AI-service URL with no usable port
+                // to port 8000 instead of sending a malformed URL to RestClient.
+                int port = uri.getPort();
+                if (port <= 0 && "http".equalsIgnoreCase(uri.getScheme())) {
+                    String hostPart = host.contains(":") ? "[" + host + "]" : host;
+                    return "http://" + hostPart + ":8000";
+                }
             }
         } catch (URISyntaxException ignored) {
             // Fall back to the sanitized string below so configuration errors are
