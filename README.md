@@ -1,30 +1,28 @@
-<!-- FinSight File Notes: Main project documentation covering setup, use, GitHub preparation, and Railway deployment. -->
-
 # FinSight: A Multi-Agent AI System for Financial Behaviour Analysis & Hidden Cost Detection
 
-FinSight is a web-based personal financial analysis system developed as a final-year software engineering project. It allows a user to create an account, complete a financial profile, upload transaction data, run a multi-agent analysis, and review financial insights through a set of focused interfaces.
+FinSight is a web-based personal financial analysis system developed as a final-year software engineering project. It helps users understand their spending behaviour by combining transaction classification, behavioural analysis, subscription detection, unusual-spending detection, expense forecasting, personalised recommendations, and financial alerts in one application.
 
-The system is designed to do more than record transactions. It uses specialised AI components to classify transactions, analyse spending behaviour, detect recurring subscriptions, identify unusual discretionary spending, forecast future expenses, generate personalised recommendations, and generate financial alerts. User profile information and month-specific budgets are passed into the recommendation and alert logic so the results can be tailored to the user's circumstances.
+Rather than focusing only on recording transactions, FinSight analyses patterns across a user's transaction history and financial profile to highlight spending behaviour that may otherwise be difficult to notice.
 
-## Main features
+## Main Features
 
 - Landing page, registration, and login
 - Financial profile with Student, Employee, and Others occupation categories
-- Separate January-December monthly budget fields
-- CSV transaction upload with three-month minimum history validation
-- Transaction classification with high-confidence description rules and a trained TF-IDF/Logistic Regression model
+- Separate monthly budget settings for January to December
+- CSV transaction upload with a minimum three-month transaction history
+- Transaction classification using rule-based checks and a trained TF-IDF/Logistic Regression model
 - Spending behaviour analysis
-- Subscription detection
+- Recurring subscription detection
 - Unusual spending detection with essential-payment exclusions
 - Short-term expense forecasting
 - Personalised recommendations with recommendation-basis labels
-- Financial alerts and persistent alert popup
-- Dashboard with spending mix and month-to-month comparison analysis
+- Financial alerts and persistent alert notifications
+- Dashboard with spending summaries and month-to-month comparisons
 - Financial Report with charts, forecasts, key insights, recommendations, and alerts
 - User Guide for first-time users
-- Profile and Settings with profile and password updates
+- Profile and Settings with financial-profile and password updates
 
-## Technology stack
+## Technology Stack
 
 ### Backend
 
@@ -36,26 +34,82 @@ The system is designed to do more than record transactions. It uses specialised 
 - Maven
 - REST APIs
 
-### AI service
+### AI Service
 
-- Python 3.11 recommended
+- Python 3.11+
 - FastAPI
 - Uvicorn
 - pandas
 - NumPy
-- scikit-learn 1.9.0 (matched to the included runtime classification model)
+- scikit-learn
 - joblib
-- Trained transaction classification model stored in `backend/ai-service/models/`
+- Trained transaction-classification model stored in `backend/ai-service/models/`
 
 ### Frontend
 
-- HTML
-- CSS
+- HTML5
+- CSS3
 - JavaScript
 - Chart.js
 - Bootstrap Icons
 
-## Project structure
+## System Architecture
+
+FinSight uses a separated backend and AI-service architecture. The Spring Boot backend manages authentication, user profiles, transaction storage, analysis workflows, API endpoints, and the web interface. The Python FastAPI service provides the specialised AI processing components.
+
+```text
+User
+  |
+  v
+FinSight Web Interface
+  |
+  v
+Spring Boot Backend
+  |----------------------|
+  |                      |
+  v                      v
+MySQL Database       Python AI Service
+                     |
+                     +-- Transaction Classification
+                     +-- Spending Behaviour Analysis
+                     +-- Subscription Detection
+                     +-- Unusual Spending Detection
+                     +-- Expense Forecasting
+                     +-- Recommendation Generation
+                     +-- Alert Generation
+```
+
+## Multi-Agent AI Components
+
+### Transaction Classification Agent
+
+Classifies transaction descriptions into financial categories. High-confidence description rules are applied for known transaction patterns, while the trained classification model handles general cases.
+
+### Spending Behaviour Analysis Agent
+
+Examines spending patterns, category totals, month-to-month changes, and behaviour trends to identify meaningful financial patterns.
+
+### Subscription Detection Agent
+
+Detects recurring payments and identifies subscriptions that may require review based on their recurrence and usage information.
+
+### Financial Forecasting Agent
+
+Uses historical expense information to estimate upcoming expenses and provide a short-term view of expected spending.
+
+### Unusual Spending Detection Agent
+
+Identifies unusual discretionary transactions and spending patterns while excluding categories treated as essential payments by the project rules.
+
+### Recommendation Generation Agent
+
+Generates recommendations using transaction behaviour, financial-profile information, monthly budgets, savings patterns, subscriptions, cash flow, and other analysis results. Each recommendation includes a priority level and an indication of the main basis used to generate it.
+
+### Alert Generation Agent
+
+Produces actionable financial alerts based on detected spending conditions and user-specific financial information.
+
+## Project Structure
 
 ```text
 FinSight/
@@ -63,58 +117,60 @@ FinSight/
 ├── README.md
 ├── backend/
 │   ├── .env.example
+│   ├── .dockerignore
+│   ├── Dockerfile
 │   ├── pom.xml
 │   ├── mvnw
 │   ├── mvnw.cmd
-│   ├── railway.toml
+│   ├── .mvn/
+│   │   └── wrapper/
 │   ├── ai-service/
+│   │   ├── Dockerfile
+│   │   ├── .dockerignore
+│   │   ├── .python-version
 │   │   ├── app/
 │   │   ├── models/
 │   │   ├── tests/
-│   │   ├── requirements.txt
-│   │   └── railway.toml
+│   │   └── requirements.txt
 │   ├── database/
 │   │   ├── README.md
 │   │   └── monthly_budgets_reconstruct.sql
 │   └── src/main/
 │       ├── java/com/finsight/backend/
 │       └── resources/static/
-└── test-data/
-    ├── student_transactions_3_months.csv
-    └── employee_transactions_3_months.csv
+├── student_transactions_3_months.csv
+└── employee_transactions_3_months.csv
 ```
 
-Generated folders such as Maven `target/`, Python `__pycache__/`, IDE settings, and local environment files are intentionally not included in the repository.
+Generated files such as Maven `target/`, Python `__pycache__/`, IDE metadata, test caches, and local environment files are excluded from the project repository.
 
-## Important notes about the current scope
-
-The provided `transaction_classifier.joblib` file is required at runtime by the AI classification component and is kept in Git. The optional external training dataset and unused data-loader utility are not included in the GitHub-ready copy because they are not required to run the deployed service.
-
-## Prerequisites for local development
+## Prerequisites
 
 Install the following before running FinSight locally:
 
-1. JDK 21 or a compatible newer JDK that can compile Java 21 source.
-2. Git.
-3. MySQL 8.x.
-4. Python 3.11.
-5. A Python virtual environment or Conda environment.
+- JDK 21 or a compatible newer JDK that supports the project configuration
+- Git
+- MySQL 8.x
+- Python 3.11 or newer
+- A Python virtual environment or Conda environment
 
-Maven does not need to be installed separately because the repository includes the Maven Wrapper.
+Maven does not need to be installed separately because the project includes the Maven Wrapper.
 
-## Local database setup
+## Local Database Setup
 
-Create a MySQL database named `finsight` if it does not already exist:
+Create a MySQL database named `finsight`:
 
 ```sql
 CREATE DATABASE finsight;
 ```
 
-The local development profile uses Hibernate `ddl-auto: update`, so the application creates or updates its tables when it starts. The monthly-budget repair SQL is available at `backend/database/monthly_budgets_reconstruct.sql` if an older database requires manual repair.
+The development configuration uses Hibernate schema updates to create or update the required tables when the application starts.
 
-## Local AI service setup
+The SQL file `backend/database/monthly_budgets_reconstruct.sql` is provided only for repairing an older database structure when required.
 
-Open a terminal in `backend/ai-service` and create/activate your Python environment. Then install the dependencies:
+## Local AI Service Setup
+
+Open a terminal in `backend/ai-service` and install the Python dependencies:
 
 ```powershell
 pip install -r requirements.txt
@@ -126,17 +182,15 @@ Start the AI service:
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
-A successful service should respond to:
+The AI service health endpoint is:
 
 ```text
 http://127.0.0.1:8000/health
 ```
 
-with a JSON response showing that the service is up.
+## Local Spring Boot Setup
 
-## Local Spring Boot setup
-
-Set these environment variables before starting the backend:
+Configure the required environment variables before starting the backend:
 
 ```text
 DB_USERNAME=your_mysql_username
@@ -154,22 +208,22 @@ cd backend
 .\mvnw.cmd clean spring-boot:run
 ```
 
-Open FinSight at:
+Open the application at:
 
 ```text
 http://localhost:8080
 ```
 
-## Recommended test flow
+## Recommended Test Flow
 
-Use the included student CSV to test the complete workflow:
+Use one of the included three-month CSV files to test the complete workflow:
 
 ```text
 Register
   -> Login
   -> Financial Profile
   -> Set monthly budgets
-  -> Upload the 3-month CSV
+  -> Upload 3-month CSV
   -> Start Analysis
   -> View Analysis
   -> Dashboard
@@ -181,149 +235,50 @@ Register
   -> Alerts
 ```
 
-The included student data contains transactions across April, May, and June 2026 and includes non-essential high-value examples such as PC-game/gaming-related spending for testing unusual-spending behaviour.
+The included student and employee datasets cover April, May, and June 2026 and contain different spending patterns for testing the analysis features.
 
-## GitHub upload guide
+## Data Input Scope
 
-1. Create a new GitHub repository. Do not upload passwords, `.env` files, database dumps containing real personal data, or private keys.
-2. Extract the GitHub-ready FinSight folder.
-3. Open PowerShell in that folder.
-4. Run:
+The current version accepts transaction data through CSV upload and requires at least three months of transaction history for analysis. Manual transaction entry and receipt OCR are not included in the current implementation.
 
-```powershell
-git init
-git add .
-git status
-git commit -m "Initial FinSight project"
-git branch -M main
-git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPOSITORY.git
-git push -u origin main
-```
+The included `transaction_classifier.joblib` model is required by the transaction-classification component and is therefore kept in the project.
 
-Replace `YOUR_USERNAME` and `YOUR_REPOSITORY` with your own GitHub details.
+## Future Improvements
 
-## Railway deployment
+The project can be extended with additional capabilities as future development work:
 
-The recommended Railway architecture is three services inside one Railway project:
+### Receipt OCR
 
-```text
-Railway Project
-├── MySQL
-├── backend       Spring Boot + FinSight frontend
-└── ai            FastAPI AI service
-```
+Add receipt-image upload and OCR processing so users can extract transaction details such as merchant, date, amount, and payment information automatically instead of entering the information through a CSV file.
 
-The frontend is already inside the Spring Boot application under `backend/src/main/resources/static`, so a separate frontend service is not required.
+### Adaptive AI Models
 
-### Service 1: MySQL
+Introduce model retraining and continuous evaluation using larger and more diverse financial datasets to improve transaction classification and behavioural analysis over time.
 
-Create a MySQL database service from the Railway project. Railway exposes connection variables such as `MYSQLHOST`, `MYSQLPORT`, `MYSQLUSER`, `MYSQLPASSWORD`, and `MYSQLDATABASE`. The backend can reference those variables instead of hard-coding database credentials.
+### Bank and E-Wallet Integration
 
-### Service 2: AI
+Provide secure integration with supported banking or digital-wallet APIs so transaction data can be imported automatically rather than uploaded manually.
 
-Create a service from the same GitHub repository and set its Root Directory to:
+### Smarter Notifications
 
-```text
-/backend/ai-service
-```
+Add configurable reminders and notifications for subscription renewals, budget thresholds, unusual spending, and upcoming forecasted expenses.
 
-Use this Start Command if Railway does not automatically detect it:
+### Explainable Recommendations
 
-```text
-uvicorn app.main:app --host 0.0.0.0 --port $PORT
-```
+Provide more detailed explanations showing the transaction patterns, budget information, and behavioural evidence behind each generated recommendation.
 
-The AI service exposes `/health`. It does not need a public domain for normal operation because the backend can access it through Railway private networking.
+### Mobile and Progressive Web Application Support
 
-### Service 3: backend
+Extend the responsive web interface into a Progressive Web App or dedicated mobile application for easier access on smartphones.
 
-Create another service from the same GitHub repository and set its Root Directory to:
+### Privacy and Security Enhancements
 
-```text
-/backend
-```
+Add stronger privacy controls, encrypted sensitive data where appropriate, improved audit logging, and additional security measures for financial information and user accounts.
 
-Use this Build Command if needed:
+## Author
 
-```text
-./mvnw -DskipTests clean package
-```
+**Tanesh Vishnu**
 
-Use this Start Command if needed:
+## Disclaimer
 
-```text
-java -jar target/backend-0.0.1-SNAPSHOT.jar
-```
-
-Set these Railway variables on the backend service:
-
-```text
-SPRING_PROFILES_ACTIVE=prod
-DATABASE_URL=jdbc:mysql://${{MySQL.MYSQLHOST}}:${{MySQL.MYSQLPORT}}/${{MySQL.MYSQLDATABASE}}?createDatabaseIfNotExist=true&serverTimezone=UTC
-DATABASE_USERNAME=${{MySQL.MYSQLUSER}}
-DATABASE_PASSWORD=${{MySQL.MYSQLPASSWORD}}
-JWT_SECRET=your_generated_random_secret
-JWT_EXPIRATION=86400000
-FINSIGHT_AI_SERVICE_URL=http://${{ai.RAILWAY_PRIVATE_DOMAIN}}:${{ai.PORT}}
-```
-
-The backend production profile uses the Railway-provided `$PORT` for the Spring Boot server and a month-specific budget table for financial budget data.
-
-### Generate the public FinSight URL
-
-After the backend deployment succeeds, open the backend service's Settings, go to Networking, and generate a public domain. This becomes the URL users open to access FinSight.
-
-Do not expose the AI service publicly unless you have a specific reason to do so. Railway private networking allows services in the same project environment to communicate using an internal address such as `http://ai.railway.internal:PORT`.
-
-### Railway config files included in this repository
-
-`backend/railway.toml` contains the Spring Boot build/start configuration and `backend/ai-service/railway.toml` contains the FastAPI start configuration. If you use Railway's Root Directory setting, configure the service's config file with the absolute repository path `/backend/railway.toml` or `/backend/ai-service/railway.toml` when Railway asks for it.
-
-Railway's current documentation describes `railway.toml`/`railway.json` as configuration-as-code and notes that this approach is being replaced by Infrastructure as Code; the service settings shown above remain the simplest manual deployment method for a beginner.
-
-## Security checklist before making the repository public
-
-- Never commit a real `.env` file.
-- Never commit a real database password.
-- Never commit API keys or private keys.
-- Use a strong random `JWT_SECRET` in Railway Variables.
-- Use `SPRING_PROFILES_ACTIVE=prod` on Railway.
-- Keep the AI service private unless public access is required.
-- Do not upload real personal financial records as test data.
-
-## Troubleshooting
-
-### Port 8080 already in use
-
-On Windows PowerShell:
-
-```powershell
-netstat -ano | findstr :8080
-taskkill /PID YOUR_PID /F
-```
-
-Then start the backend again.
-
-### AI service connection error
-
-Make sure the Python service is running on port 8000 locally and that:
-
-```text
-FINSIGHT_AI_SERVICE_URL=http://127.0.0.1:8000
-```
-
-is correct for local development.
-
-On Railway, use the backend variable:
-
-```text
-FINSIGHT_AI_SERVICE_URL=http://${{ai.RAILWAY_PRIVATE_DOMAIN}}:${{ai.PORT}}
-```
-
-### Database connection error
-
-Check the MySQL service is running and that the backend uses the Railway reference variables rather than `localhost`.
-
-## Project status
-
-This repository is the cleaned GitHub/deployment copy of FinSight. It contains the working application source, trained runtime model, tests, sample transaction files, database documentation, and Railway deployment configuration while excluding generated build files and local development caches.
+FinSight is an academic software project developed for educational and demonstration purposes. Its analysis, forecasts, recommendations, and alerts are generated from the available transaction data and user-provided financial profile information and should not be treated as professional financial advice.
