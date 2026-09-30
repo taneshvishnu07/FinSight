@@ -162,6 +162,9 @@ async function enforceProfileGate() {
   // Profile data is loaded by profile.js itself. Avoid a duplicate request here.
   if (page === "profile.html") {
     renderShell(completed);
+    // profile.html is the first-time setup page, so it must never remain
+    // hidden behind the route-checking overlay while loadProfile() runs.
+    document.body.classList.remove("route-checking");
     return;
   }
 
