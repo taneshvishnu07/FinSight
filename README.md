@@ -239,7 +239,7 @@ The included student and employee datasets cover April, May, and June 2026 and c
 
 ## Data Input Scope
 
-The current version accepts transaction data through CSV upload and requires at least three months of transaction history for analysis. Manual transaction entry and receipt OCR are not included in the current implementation.
+The current version accepts transaction data through CSV upload and requires at least three months of transaction history for analysis.
 
 The included `transaction_classifier.joblib` model is required by the transaction-classification component and is therefore kept in the project.
 
