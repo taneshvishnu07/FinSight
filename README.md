@@ -36,7 +36,7 @@ Rather than focusing only on recording transactions, FinSight analyses patterns 
 
 ### AI Service
 
-- Python 3.11+
+- Python 3.11
 - FastAPI
 - Uvicorn
 - pandas
@@ -148,10 +148,10 @@ Generated files such as Maven `target/`, Python `__pycache__/`, IDE metadata, te
 
 Install the following before running FinSight locally:
 
-- JDK 21 or a compatible newer JDK that supports the project configuration
+- JDK 21
 - Git
 - MySQL 8.x
-- Python 3.11 or newer
+- Python 3.11
 - A Python virtual environment or Conda environment
 
 Maven does not need to be installed separately because the project includes the Maven Wrapper.
