@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   function populateBudgetYears() {
     if (!budgetYear || budgetYear.options.length) return;
     const currentYear = new Date().getFullYear();
-    for (let year = currentYear - 1; year <= currentYear + 2; year++) {
+    for (let year = currentYear; year <= currentYear + 2; year++) {
       const option = document.createElement("option");
       option.value = String(year);
       option.textContent = String(year);
