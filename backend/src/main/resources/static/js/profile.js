@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       qs(".page-title-row .eyebrow") && (qs(".page-title-row .eyebrow").textContent = "GET STARTED");
       qs(".page-title-row h1") && (qs(".page-title-row h1").textContent = "Setting Up Financial Profile");
       qs(".page-title-row p") && (qs(".page-title-row p").textContent = "Complete your personal information and monthly budgets to unlock the FinSight dashboard.");
-      document.title = "FinSight — Setting Up Financial Profile";
+      document.title = "FinSight | Setting Up Financial Profile";
       renderBudgetFields([]);
     }
   }
