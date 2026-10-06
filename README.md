@@ -36,7 +36,7 @@ Rather than focusing only on recording transactions, FinSight analyses patterns 
 
 ### AI Service
 
-- Python 3.11+
+- Python 3.11
 - FastAPI
 - Uvicorn
 - pandas
@@ -148,10 +148,10 @@ Generated files such as Maven `target/`, Python `__pycache__/`, IDE metadata, te
 
 Install the following before running FinSight locally:
 
-- JDK 21 or a compatible newer JDK that supports the project configuration
+- JDK 21
 - Git
 - MySQL 8.x
-- Python 3.11 or newer
+- Python 3.11
 - A Python virtual environment or Conda environment
 
 Maven does not need to be installed separately because the project includes the Maven Wrapper.
@@ -239,41 +239,9 @@ The included student and employee datasets cover April, May, and June 2026 and c
 
 ## Data Input Scope
 
-The current version accepts transaction data through CSV upload and requires at least three months of transaction history for analysis. Manual transaction entry and receipt OCR are not included in the current implementation.
+The current version accepts transaction data through CSV upload and requires at least three months of transaction history for analysis.
 
 The included `transaction_classifier.joblib` model is required by the transaction-classification component and is therefore kept in the project.
-
-## Future Improvements
-
-The project can be extended with additional capabilities as future development work:
-
-### Receipt OCR
-
-Add receipt-image upload and OCR processing so users can extract transaction details such as merchant, date, amount, and payment information automatically instead of entering the information through a CSV file.
-
-### Adaptive AI Models
-
-Introduce model retraining and continuous evaluation using larger and more diverse financial datasets to improve transaction classification and behavioural analysis over time.
-
-### Bank and E-Wallet Integration
-
-Provide secure integration with supported banking or digital-wallet APIs so transaction data can be imported automatically rather than uploaded manually.
-
-### Smarter Notifications
-
-Add configurable reminders and notifications for subscription renewals, budget thresholds, unusual spending, and upcoming forecasted expenses.
-
-### Explainable Recommendations
-
-Provide more detailed explanations showing the transaction patterns, budget information, and behavioural evidence behind each generated recommendation.
-
-### Mobile and Progressive Web Application Support
-
-Extend the responsive web interface into a Progressive Web App or dedicated mobile application for easier access on smartphones.
-
-### Privacy and Security Enhancements
-
-Add stronger privacy controls, encrypted sensitive data where appropriate, improved audit logging, and additional security measures for financial information and user accounts.
 
 ## Author
 
