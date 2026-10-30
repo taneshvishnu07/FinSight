@@ -1,0 +1,332 @@
+/* FinSight white-content / navy-header theme.
+   White is used for reading surfaces; navy is reserved for navigation,
+   page headers and primary actions. The doughnut chart keeps category colours. */
+:root {
+  --navy-950: #0B2545;
+  --navy-900: #F7F9FC;
+  --navy-850: #F1F5F9;
+  --navy-800: #FFFFFF;
+  --blue-700: #17466D;
+  --blue-600: #174A73;
+  --blue-500: #245F8C;
+  --blue-300: #A9C5DB;
+  --blue-100: #E8F0F7;
+  --text-main: #172B45;
+  --text-soft: #607086;
+  --border-blue: #DCE4ED;
+  --accent: #174A73;
+  --accent-dark: #103A5D;
+  --accent-soft: #EAF1F7;
+  --ink: #172B45;
+  --muted: #607086;
+  --line: #DCE4ED;
+  --soft: #F5F7FA;
+}
+
+html, body { background: #F5F7FA !important; color: #172B45 !important; }
+body { min-height: 100vh; }
+
+/* Landing page: white reading area with a navy navigation header. */
+.landing-page { background: #FFFFFF !important; color: #172B45 !important; }
+.landing-nav { background: #0B2545 !important; color: #FFFFFF !important; border-bottom: 1px solid #173B5C !important; }
+.landing-nav .brand, .landing-nav .brand-mark { color: #FFFFFF !important; }
+.landing-nav .brand-mark { background: #1D527B !important; }
+.landing-nav nav > a:not(.btn) { color: #E7EEF5 !important; }
+.landing-nav nav > a:not(.btn):hover { color: #FFFFFF !important; }
+.hero-section, .section-block { background: #FFFFFF !important; color: #172B45 !important; }
+.hero-copy h1, .section-heading h2 { color: #102B46 !important; }
+.hero-copy h1 span, .eyebrow, .feature-card i { color: #245F8C !important; }
+.hero-copy p, .section-heading p, .feature-card p, .step p { color: #607086 !important; }
+.hero-preview { background: #FFFFFF !important; border-color: #DCE4ED !important; box-shadow: 0 16px 40px rgba(15, 39, 64, .09) !important; }
+.preview-top, .preview-card strong { color: #172B45 !important; }
+.preview-card { background: #FFFFFF !important; border-color: #E2E8F0 !important; }
+.preview-card small { color: #64748B !important; }
+.preview-line { background: #E8EEF4 !important; }
+.preview-dot { background: #174A73 !important; }
+.preview-chart { border-bottom-color: #CBD5E1 !important; }
+.light-section { background: #F5F7FA !important; }
+.feature-card, .step { background: #FFFFFF !important; border-color: #DCE4ED !important; color: #172B45 !important; box-shadow: 0 5px 18px rgba(15, 39, 64, .04); }
+.feature-card h3, .step h3 { color: #173B5C !important; }
+.landing-footer { background: #0B2545 !important; border-top-color: #173B5C !important; color: #E7EEF5 !important; }
+
+/* Login and registration: white form surface and navy primary action. */
+.auth-page { background: #F5F7FA !important; color: #172B45 !important; }
+.auth-card { background: #FFFFFF !important; color: #172B45 !important; border: 1px solid #DCE4ED !important; box-shadow: 0 16px 45px rgba(15, 39, 64, .09) !important; }
+.auth-card h1 { color: #102B46 !important; }
+.auth-card label, .form-stack label { color: #263B52 !important; }
+.auth-card > .muted, .auth-switch, .legal-note, .back-link { color: #64748B !important; }
+.auth-switch a, .text-link { color: #174A73 !important; }
+.auth-card input, .auth-card select, .form-stack input, .form-stack select, .form-stack textarea { background: #FFFFFF !important; color: #172B45 !important; border: 1px solid #CBD5E1 !important; }
+.auth-card input::placeholder, .form-stack input::placeholder, .form-stack textarea::placeholder { color: #94A3B8 !important; }
+.auth-card input:focus, .auth-card select:focus, .form-stack input:focus, .form-stack select:focus, .form-stack textarea:focus { border-color: #245F8C !important; box-shadow: 0 0 0 3px rgba(36, 95, 140, .12) !important; }
+.icon-btn { color: #607086 !important; }
+
+/* Main application shell. Sidebar is the primary navy navigation region. */
+body.app-page { background: #F5F7FA !important; background-attachment: initial !important; color: #172B45 !important; }
+.app-page .app-main { background: #F5F7FA !important; color: #172B45 !important; border-top-left-radius: 0 !important; }
+.sidebar { background: #0B2545 !important; border-right: 1px solid #173B5C !important; box-shadow: 5px 0 18px rgba(11, 37, 69, .08) !important; }
+.sidebar .brand, .sidebar .brand-mark { color: #FFFFFF !important; }
+.sidebar .brand-mark { background: #1D527B !important; }
+.sidebar-nav a { color: #D8E4EF !important; }
+.sidebar-nav a:hover, .sidebar-nav a.active { background: #174A73 !important; color: #FFFFFF !important; }
+.sidebar-bottom button { color: #D8E4EF !important; }
+.sidebar-bottom button:hover { color: #FFFFFF !important; }
+
+/* Page title banner: one clear navy highlight per application page. */
+.page-title-row { background: #0B2545 !important; border: 1px solid #173B5C !important; border-radius: 14px !important; padding: 20px 22px !important; margin-bottom: 24px !important; color: #FFFFFF !important; }
+.page-title-row h1 { color: #FFFFFF !important; }
+.page-title-row p { color: #D8E4EF !important; }
+.page-title-row .eyebrow { color: #A9C5DB !important; }
+.page-title-row .analysis-percent { color: #FFFFFF !important; }
+.page-title-row .setup-progress { color: #D8E4EF !important; }
+.page-title-row .setup-progress div { background: rgba(255,255,255,.22) !important; }
+.page-title-row .setup-progress b { background: #FFFFFF !important; }
+.page-title-row .btn-light { background: rgba(255,255,255,.12) !important; border-color: rgba(255,255,255,.35) !important; color: #FFFFFF !important; }
+.page-title-row .btn-light:hover { background: rgba(255,255,255,.2) !important; }
+
+/* White cards, panels, forms and tables throughout every application page. */
+.metric-card, .panel, .form-section, .upload-panel, .progress-panel,
+.agent-card, .recommendation-card, .insight-item, .mini-item,
+.subscription-item, .alert-item, .upload-info-grid div,
+.validation-check, .drop-zone, .guide-modal, .guide-announcement,
+.recommendation-criteria .criteria-grid > div, .comparison-stat,
+.comparison-summary, .category-legend-item {
+  background: #FFFFFF !important;
+  color: #172B45 !important;
+  border-color: #DCE4ED !important;
+  box-shadow: 0 4px 16px rgba(15, 39, 64, .045) !important;
+}
+.metric-card span, .metric-card strong, .metric-card small,
+.panel-header h2, .form-section h2, .form-section h3,
+.upload-panel h2, .upload-panel h3, .agent-card h3,
+.recommendation-card h3, .insight-item strong, .mini-item strong,
+.subscription-item strong, .alert-item strong,
+.comparison-stat strong, .comparison-detail > strong,
+.recommendation-criteria .criteria-grid strong,
+.upload-info-grid strong { color: #172B45 !important; }
+.metric-card span, .metric-card small, .panel-header p,
+.page-title-row p, .form-section p, .field-help,
+.form-stack small, .check-row small, .progress-panel small,
+.agent-card p, .drop-zone p, .upload-info-grid span,
+.subscription-item p, .alert-item p, .recommendation-card p,
+.insight-item p, .mini-item p, .comparison-stat span,
+.comparison-stat small, .comparison-detail li,
+.comparison-summary p, .recommendation-criteria .criteria-grid p {
+  color: #607086 !important;
+}
+
+/* Form fields and upload areas stay white with clearly visible outlines. */
+.app-page input, .app-page select, .app-page textarea,
+.app-page .upload-info-grid input, .app-page .upload-info-grid select,
+#budgetYear, #budgetYear option, .monthly-budget-item input {
+  background: #FFFFFF !important;
+  color: #172B45 !important;
+  border-color: #CBD5E1 !important;
+  color-scheme: light;
+}
+.app-page input::placeholder, .app-page textarea::placeholder { color: #94A3B8 !important; opacity: 1 !important; }
+.app-page option { background: #FFFFFF !important; color: #172B45 !important; }
+.app-page input:focus, .app-page select:focus, .app-page textarea:focus,
+#budgetYear:focus, .monthly-budget-item input:focus { border-color: #245F8C !important; box-shadow: 0 0 0 3px rgba(36,95,140,.12) !important; }
+.drop-zone { border: 1px dashed #9FB3C7 !important; }
+.drop-zone.dragover { background: #EFF5FA !important; border-color: #174A73 !important; }
+.selected-file { color: #173B5C !important; }
+.validation-check.valid { background: #F0FDF4 !important; border-color: #BBE7C9 !important; }
+.validation-check.invalid { background: #FEF2F2 !important; border-color: #FECACA !important; }
+.validation-check.pending { background: #F8FAFC !important; }
+.validation-check span, .validation-check strong { color: #475569 !important; }
+
+/* Buttons: primary actions are navy; secondary actions are white. */
+.btn-dark, .guide-actions .primary, .guide-announcement-actions .btn-dark {
+  background: #174A73 !important; border-color: #174A73 !important; color: #FFFFFF !important;
+}
+.btn-dark:hover, .guide-actions .primary:hover { background: #103A5D !important; border-color: #103A5D !important; color: #FFFFFF !important; }
+.btn-light, .guide-actions button, .guide-announcement-actions .btn-light {
+  background: #FFFFFF !important; border-color: #CBD5E1 !important; color: #174A73 !important;
+}
+.btn-light:hover, .guide-actions button:hover { background: #F1F5F9 !important; color: #103A5D !important; }
+.btn:disabled { opacity: .55; }
+
+/* Readable tables with subtle separators. */
+table, thead, tbody, tr { background: transparent !important; color: #172B45 !important; }
+th { background: #F1F5F9 !important; color: #475569 !important; border-bottom: 1px solid #DCE4ED !important; }
+td { color: #263B52 !important; border-bottom: 1px solid #E8EDF3 !important; }
+.comparison-table-wrap { border-color: #DCE4ED !important; }
+.comparison-table th { background: #F1F5F9 !important; color: #475569 !important; border-bottom-color: #DCE4ED !important; }
+.comparison-table td { color: #263B52 !important; border-bottom-color: #E8EDF3 !important; }
+.category-legend-name { color: #475569 !important; }
+.category-legend-item strong { color: #172B45 !important; }
+.category-legend { border-top-color: #E2E8F0 !important; }
+.category-legend-item { box-shadow: none !important; }
+
+/* Use navy for progress and important icons, without darkening content panels. */
+.progress-bar { background: #E8EEF4 !important; border: 1px solid #DCE4ED !important; }
+.progress-bar b { background: #174A73 !important; }
+.agent-card > i, .drop-zone > i, .item-icon i, .item-icon { color: #174A73 !important; }
+.item-icon { background: #EFF4F8 !important; }
+.setup-lock-note { color: #607086 !important; border-color: #DCE4ED !important; }
+.text-link { color: #174A73 !important; }
+
+/* User guide and alert overlays use white content cards. */
+.guide-overlay, .guide-announcement-overlay { background: rgba(11,37,69,.48) !important; }
+.guide-modal, .guide-announcement { background: #FFFFFF !important; border-color: #DCE4ED !important; color: #172B45 !important; box-shadow: 0 24px 70px rgba(11,37,69,.22) !important; }
+.guide-header h2, .guide-modal h2, .guide-announcement h2 { color: #173B5C !important; }
+.guide-description, .guide-tip, .guide-announcement p { color: #607086 !important; }
+.guide-tip { background: #F5F8FB !important; border-color: #DCE4ED !important; }
+.guide-close, .guide-announcement-close { color: #607086 !important; }
+.guide-actions button { background: #FFFFFF !important; color: #174A73 !important; border-color: #CBD5E1 !important; }
+.guide-actions .primary { background: #174A73 !important; color: #FFFFFF !important; }
+.guide-progress span { background: #DCE4ED !important; }
+.guide-progress span.active { background: #174A73 !important; }
+.robot-alert { background: #FFFFFF !important; color: #172B45 !important; border: 1px solid #DCE4ED !important; box-shadow: 0 18px 48px rgba(11,37,69,.18) !important; }
+.robot-avatar { background: #174A73 !important; color: #FFFFFF !important; }
+.robot-copy h3 { color: #173B5C !important; }
+.robot-copy p, .robot-actions button, .robot-close { color: #607086 !important; }
+.robot-actions a { color: #174A73 !important; }
+.robot-badge { background: #174A73 !important; color: #FFFFFF !important; }
+
+/* Alert and status indicators keep restrained semantic colours. */
+.status-pill, .category-badge, .severity { background: #F1F5F9 !important; color: #475569 !important; border: 1px solid #DCE4ED !important; }
+.status-pill.completed { background: #ECFDF3 !important; color: #067647 !important; border-color: #ABEFC6 !important; }
+.status-pill.processing { background: #EFF6FF !important; color: #1D4ED8 !important; border-color: #BFDBFE !important; }
+.status-pill.failed, .severity.critical { background: #FEF2F2 !important; color: #B42318 !important; border-color: #FECACA !important; }
+.severity.high { background: #FFF7ED !important; color: #B54708 !important; border-color: #FED7AA !important; }
+.severity.medium { background: #FFFBEB !important; color: #B45309 !important; border-color: #FDE68A !important; }
+.severity.low { background: #F1F5F9 !important; color: #475569 !important; border-color: #DCE4ED !important; }
+.form-message { color: #B42318 !important; }
+.form-message.success { color: #067647 !important; }
+
+/* Responsive title banner spacing. */
+@media (max-width: 720px) {
+  .page-title-row { padding: 17px !important; border-radius: 12px !important; }
+  .sidebar { background: #0B2545 !important; }
+}
+
+/* Specificity adjustments for elements nested inside navy header/navigation. */
+.app-page .page-title-row p { color: #D8E4EF !important; }
+.app-page .page-title-row h1 span { color: #FFFFFF !important; }
+.app-page .page-title-row .eyebrow { color: #A9C5DB !important; }
+.sidebar .sidebar-nav a span, .sidebar .sidebar-nav a i { color: inherit !important; }
+input[type="number"] { color-scheme: light !important; }
+
+/* Visibility fixes for the first-time profile sidebar and account navigation. */
+.sidebar .sidebar-nav a,
+.sidebar .sidebar-nav a span,
+.sidebar .sidebar-nav a i,
+.sidebar .sidebar-bottom button,
+.sidebar .sidebar-bottom button span,
+.sidebar .sidebar-bottom button i {
+  color: #FFFFFF !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.sidebar .sidebar-nav a {
+  min-height: 40px;
+}
+
+.sidebar .sidebar-bottom {
+  display: grid !important;
+  gap: 9px !important;
+  width: 100%;
+  padding-top: 12px;
+}
+
+.sidebar .sidebar-bottom button {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 42px;
+  padding: 11px 10px !important;
+  border: 1px solid transparent !important;
+  border-radius: 8px !important;
+  background: transparent !important;
+  text-align: left;
+  font-size: 12px !important;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.sidebar .sidebar-bottom button:hover,
+.sidebar .sidebar-bottom button:focus-visible {
+  background: #174A73 !important;
+  border-color: rgba(255, 255, 255, .14) !important;
+  color: #FFFFFF !important;
+  outline-color: #FFFFFF;
+}
+
+.sidebar .sidebar-bottom button span {
+  display: inline !important;
+  white-space: normal;
+}
+
+/* First-time setup reminder: give the message its own visible surface. */
+.sidebar .setup-lock-note {
+  display: flex !important;
+  align-items: flex-start;
+  gap: 9px;
+  width: 100%;
+  padding: 12px 10px !important;
+  margin: 0 0 2px;
+  border: 1px solid rgba(226, 237, 247, .28) !important;
+  border-radius: 9px !important;
+  background: rgba(255, 255, 255, .10) !important;
+  color: #FFFFFF !important;
+  font-size: 11px !important;
+  font-weight: 500;
+  line-height: 1.5;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.sidebar .setup-lock-note span,
+.sidebar .setup-lock-note i {
+  color: #FFFFFF !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.sidebar .setup-lock-note span {
+  display: block !important;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.sidebar .setup-lock-note i {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  font-size: 14px;
+}
+
+/* Auth-page FinSight logo: improve contrast and visual prominence. */
+/* Login and Register FinSight logo */
+.auth-card .brand,
+.auth-card .brand.centered {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    color: #0B2545 !important;
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    letter-spacing: -.025em;
+    opacity: 1 !important;
+}
+
+.auth-card .brand-mark {
+    display: grid !important;
+    place-items: center;
+    width: 27px !important;
+    height: 27px !important;
+    border-radius: 7px !important;
+    background: #174A73 !important;
+    color: #FFFFFF !important;
+    font-size: 14px !important;
+    box-shadow: 0 4px 12px rgba(23, 74, 115, .20);
+}
+
+.auth-card .brand-mark i {
+    color: #FFFFFF !important;
+    opacity: 1 !important;
+}

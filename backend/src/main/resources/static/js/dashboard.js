@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           datasets: [{
             data: cats.map(([, v]) => Number(v)),
             backgroundColor: cats.map((_, i) => chartColors[i % chartColors.length]),
-            borderColor: "#0B2442",
+            borderColor: "#FFFFFF",
             borderWidth: 3
           }]
         },
@@ -97,10 +97,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             data: recentMonths.map(m => byMonth[m].expense),
             tension: .35,
             fill: false,
-            borderColor: "#38BDF8",
-            backgroundColor: "#38BDF8",
-            pointBackgroundColor: "#F59E0B",
-            pointBorderColor: "#F8FAFC",
+            borderColor: "#174A73",
+            backgroundColor: "rgba(23,74,115,.08)",
+            pointBackgroundColor: "#174A73",
+            pointBorderColor: "#FFFFFF",
             pointRadius: 4,
             borderWidth: 3
           }]
@@ -108,8 +108,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         options: {
           plugins: { legend: { display: false }, tooltip: { callbacks: { label: context => `Expenses: ${money(context.raw)}` } } },
           scales: {
-            x: { ticks: { color: "#AFC8DF" }, grid: { color: "rgba(148,163,184,.12)" } },
-            y: { beginAtZero: true, ticks: { color: "#AFC8DF", callback: value => money(value) }, grid: { color: "rgba(148,163,184,.12)" } }
+            x: { ticks: { color: "#64748B" }, grid: { color: "rgba(148,163,184,.22)" } },
+            y: { beginAtZero: true, ticks: { color: "#64748B", callback: value => money(value) }, grid: { color: "rgba(148,163,184,.22)" } }
           },
           maintainAspectRatio: false
         }
@@ -207,10 +207,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                 return income > 0 ? (byMonth[m].savings / income) * 100 : 0;
               }),
               tension: .3,
-              borderColor: "#10B981",
-              backgroundColor: "rgba(16,185,129,.14)",
-              pointBackgroundColor: "#F59E0B",
-              pointBorderColor: "#F8FAFC",
+              borderColor: "#174A73",
+              backgroundColor: "rgba(23,74,115,.08)",
+              pointBackgroundColor: "#174A73",
+              pointBorderColor: "#FFFFFF",
               pointRadius: 4,
               borderWidth: 3,
               fill: true
@@ -220,8 +220,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             maintainAspectRatio: false,
             plugins: { legend: { display: false }, tooltip: { callbacks: { label: context => `Savings rate: ${Number(context.raw).toFixed(1)}%` } } },
             scales: {
-              x: { ticks: { color: "#AFC8DF" }, grid: { color: "rgba(148,163,184,.12)" } },
-              y: { beginAtZero: true, ticks: { color: "#AFC8DF", callback: value => `${value}%` }, grid: { color: "rgba(148,163,184,.12)" } }
+              x: { ticks: { color: "#64748B" }, grid: { color: "rgba(148,163,184,.22)" } },
+              y: { beginAtZero: true, ticks: { color: "#64748B", callback: value => `${value}%` }, grid: { color: "rgba(148,163,184,.22)" } }
             }
           }
         });
