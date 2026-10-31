@@ -849,3 +849,1078 @@ td {
   .report-grid .panel:has(#reportCategory){min-height:590px!important}
 }
 
+/* Final consistent white-content / navy-header theme. */
+/* FinSight final visual consistency pass (2026-10-30)
+   One typography system, identical navy for sidebar and page banners,
+   white content surfaces, and a clear financial-alert popup. */
+:root {
+  --fs-brand-navy: #0B2545;
+  --fs-brand-navy-hover: #153D64;
+  --fs-brand-blue: #1B527D;
+  --fs-page: #F4F7FB;
+  --fs-surface: #FFFFFF;
+  --fs-surface-soft: #F8FAFC;
+  --fs-text: #172B3F;
+  --fs-muted: #607286;
+  --fs-border: #DCE5EE;
+  --fs-font: "Segoe UI", Arial, sans-serif;
+}
+
+/* Use one readable font throughout the application. Bootstrap icon glyphs
+   retain their own icon font. */
+html, body,
+body *,
+body *::before,
+body *::after {
+  font-family: var(--fs-font) !important;
+}
+.bi,
+.bi::before,
+[class^="bi-"],
+[class*=" bi-"]::before {
+  font-family: "bootstrap-icons" !important;
+}
+
+html, body {
+  background: var(--fs-page) !important;
+  color: var(--fs-text) !important;
+}
+body { min-height: 100vh; }
+
+/* Public pages: white/light content with navy branding. */
+.landing-page,
+.auth-page {
+  background: var(--fs-page) !important;
+  color: var(--fs-text) !important;
+}
+.landing-nav {
+  background: var(--fs-brand-navy) !important;
+  border-bottom: 0 !important;
+  color: #FFFFFF !important;
+}
+.landing-nav .brand,
+.landing-nav nav > a:not(.btn) {
+  color: #FFFFFF !important;
+}
+.landing-nav .brand-mark {
+  background: #FFFFFF !important;
+  color: var(--fs-brand-navy) !important;
+}
+.hero-copy h1,
+.section-heading h2,
+.hero-copy h1 span {
+  color: var(--fs-text) !important;
+}
+.hero-copy p,
+.section-heading p,
+.feature-card p,
+.step p {
+  color: var(--fs-muted) !important;
+}
+.hero-preview,
+.preview-card,
+.feature-card,
+.step {
+  background: var(--fs-surface) !important;
+  color: var(--fs-text) !important;
+  border-color: var(--fs-border) !important;
+  box-shadow: 0 8px 24px rgba(11, 37, 69, .06) !important;
+}
+.preview-top,
+.preview-card strong,
+.feature-card h3,
+.step h3 {
+  color: var(--fs-text) !important;
+}
+.preview-card small { color: var(--fs-muted) !important; }
+.light-section { background: #EAF0F6 !important; }
+.landing-footer {
+  background: var(--fs-brand-navy) !important;
+  color: #FFFFFF !important;
+  border-top: 0 !important;
+}
+
+/* Login and registration: white cards with visible navy logo. */
+.auth-shell .auth-card {
+  background: var(--fs-surface) !important;
+  color: var(--fs-text) !important;
+  border: 1px solid var(--fs-border) !important;
+  box-shadow: 0 18px 48px rgba(11, 37, 69, .10) !important;
+}
+.auth-card h1,
+.auth-card label {
+  color: var(--fs-text) !important;
+}
+.auth-card > .muted,
+.auth-switch,
+.legal-note,
+.back-link {
+  color: var(--fs-muted) !important;
+}
+.auth-card .brand,
+.auth-card .brand.centered {
+  color: var(--fs-brand-navy) !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  gap: 9px !important;
+}
+.auth-card .brand-mark {
+  width: 27px !important;
+  height: 27px !important;
+  border-radius: 7px !important;
+  background: var(--fs-brand-navy) !important;
+  color: #FFFFFF !important;
+  font-size: 14px !important;
+}
+.auth-card .brand-mark .bi,
+.auth-card .brand-mark .bi::before {
+  color: #FFFFFF !important;
+  font-size: 14px !important;
+}
+.auth-card input,
+.auth-card select,
+.form-stack input,
+.form-stack select,
+.form-stack textarea {
+  background: #FFFFFF !important;
+  color: var(--fs-text) !important;
+  border: 1px solid var(--fs-border) !important;
+}
+.auth-card input::placeholder,
+.form-stack input::placeholder,
+.form-stack textarea::placeholder {
+  color: #8796A6 !important;
+}
+.auth-card .btn-dark,
+.app-page .btn-dark,
+.guide-actions .primary {
+  background: var(--fs-brand-navy) !important;
+  border-color: var(--fs-brand-navy) !important;
+  color: #FFFFFF !important;
+}
+.auth-card .btn-dark:hover,
+.app-page .btn-dark:hover,
+.guide-actions .primary:hover {
+  background: var(--fs-brand-navy-hover) !important;
+  border-color: var(--fs-brand-navy-hover) !important;
+}
+
+/* Main application canvas and navigation. The sidebar and title banner use
+   exactly the same solid navy value (no separate gradients). */
+body.app-page,
+.app-page .app-main {
+  background: var(--fs-page) !important;
+  color: var(--fs-text) !important;
+}
+.app-page .app-main {
+  border-top-left-radius: 0 !important;
+}
+.sidebar {
+  background: var(--fs-brand-navy) !important;
+  background-image: none !important;
+  border-right: 0 !important;
+  box-shadow: 5px 0 20px rgba(11, 37, 69, .12) !important;
+}
+.sidebar .brand,
+.sidebar .brand span:not(.brand-mark),
+.sidebar .sidebar-bottom button,
+.sidebar .sidebar-bottom button span,
+.sidebar .sidebar-bottom button i,
+.sidebar-nav a,
+.sidebar-nav a span,
+.sidebar-nav a i {
+  color: #FFFFFF !important;
+}
+.sidebar .brand-mark {
+  background: #FFFFFF !important;
+  color: var(--fs-brand-navy) !important;
+}
+.sidebar .brand-mark .bi,
+.sidebar .brand-mark .bi::before {
+  color: var(--fs-brand-navy) !important;
+}
+.sidebar-nav a:hover,
+.sidebar-nav a.active,
+.sidebar-bottom button:hover {
+  background: var(--fs-brand-navy-hover) !important;
+  color: #FFFFFF !important;
+}
+.sidebar-nav a:hover span,
+.sidebar-nav a.active span,
+.sidebar-nav a:hover i,
+.sidebar-nav a.active i,
+.sidebar-bottom button:hover span,
+.sidebar-bottom button:hover i {
+  color: #FFFFFF !important;
+}
+
+/* Page title banner deliberately matches the sidebar exactly. */
+.app-page .page-title-row {
+  background: var(--fs-brand-navy) !important;
+  background-image: none !important;
+  color: #FFFFFF !important;
+  border-radius: 14px !important;
+  padding: 20px 24px !important;
+  margin-bottom: 26px !important;
+  align-items: center !important;
+  box-shadow: 0 8px 22px rgba(11, 37, 69, .10) !important;
+}
+.app-page .page-title-row h1,
+.app-page .page-title-row p,
+.app-page .page-title-row .analysis-percent,
+.app-page .page-title-row .setup-progress,
+.app-page .page-title-row .setup-progress span {
+  color: #FFFFFF !important;
+}
+.app-page .page-title-row .eyebrow {
+  color: #BFD6EA !important;
+}
+.app-page .page-title-row p {
+  opacity: .88;
+}
+.app-page .page-title-row .btn,
+.app-page .page-title-row .btn-light {
+  background: #FFFFFF !important;
+  color: var(--fs-brand-navy) !important;
+  border: 1px solid #FFFFFF !important;
+}
+.app-page .page-title-row .btn:hover {
+  background: #EAF1F7 !important;
+}
+
+/* White application cards and panels. */
+.metric-card,
+.panel,
+.form-section,
+.upload-panel,
+.progress-panel,
+.agent-card,
+.recommendation-card,
+.insight-item,
+.mini-item,
+.subscription-item,
+.alert-item,
+.upload-info-grid > div,
+.validation-check,
+.drop-zone,
+.comparison-stat,
+.comparison-summary,
+.comparison-table-wrap,
+.category-legend-item,
+.recommendation-criteria .criteria-grid > div {
+  background: var(--fs-surface) !important;
+  color: var(--fs-text) !important;
+  border: 1px solid var(--fs-border) !important;
+  box-shadow: 0 5px 18px rgba(11, 37, 69, .045) !important;
+}
+.app-page h1:not(.page-title-row h1),
+.app-page h2,
+.app-page h3,
+.app-page h4,
+.app-page h5,
+.app-page label,
+.app-page strong,
+.app-page td,
+.app-page th,
+.app-page li,
+.app-page .metric-card span,
+.app-page .metric-card strong,
+.app-page .metric-card small,
+.app-page .form-section h2,
+.app-page .panel-header h2,
+.app-page .recommendation-card,
+.app-page .comparison-detail > strong {
+  color: var(--fs-text) !important;
+}
+.app-page p,
+.app-page small,
+.app-page .muted,
+.app-page .page-title-row p,
+.app-page .panel-header p,
+.app-page .field-help,
+.app-page .item-value small,
+.app-page .insight-item p,
+.app-page .mini-item p,
+.app-page .subscription-item p,
+.app-page .alert-item p,
+.app-page .recommendation-card p,
+.app-page .comparison-detail li,
+.app-page .category-legend-name {
+  color: var(--fs-muted) !important;
+}
+.app-page input,
+.app-page select,
+.app-page textarea,
+#budgetYear,
+.monthly-budget-item input {
+  background: #FFFFFF !important;
+  color: var(--fs-text) !important;
+  border: 1px solid var(--fs-border) !important;
+  font-family: var(--fs-font) !important;
+}
+.app-page input::placeholder,
+.app-page textarea::placeholder,
+.monthly-budget-item input::placeholder {
+  color: #8796A6 !important;
+  opacity: 1 !important;
+}
+.app-page option { background: #FFFFFF !important; color: var(--fs-text) !important; }
+.app-page table,
+.app-page tbody,
+.app-page thead,
+.app-page tr { background: transparent !important; }
+.app-page th,
+.app-page td {
+  color: var(--fs-text) !important;
+  border-bottom-color: var(--fs-border) !important;
+}
+.app-page th { background: #F5F8FB !important; color: #53677B !important; }
+.app-page .comparison-table th { background: #F5F8FB !important; color: #53677B !important; }
+.app-page .comparison-table td { color: var(--fs-text) !important; }
+.app-page .comparison-table .comparison-lower { color: #087A55 !important; }
+.app-page .comparison-table .comparison-higher { color: #B42318 !important; }
+.app-page .comparison-table .comparison-neutral { color: var(--fs-muted) !important; }
+.app-page .item-icon {
+  background: #EAF1F7 !important;
+  color: var(--fs-brand-navy) !important;
+}
+.app-page .drop-zone { border: 1px dashed #A9BACB !important; }
+.app-page .drop-zone > i,
+.app-page .agent-card > i,
+.app-page .item-icon i { color: var(--fs-brand-blue) !important; }
+.app-page .category-legend-dot { border: 1px solid rgba(11,37,69,.08); }
+.app-page .category-legend-item strong { color: var(--fs-text) !important; }
+.app-page .transaction-group-row td { background: #F5F8FB !important; }
+.app-page .transaction-group-toggle { color: var(--fs-text) !important; }
+.app-page .transaction-group-toggle span { color: var(--fs-muted) !important; }
+.app-page .btn-light,
+.app-page .guide-actions button {
+  background: #EAF1F7 !important;
+  color: var(--fs-brand-navy) !important;
+  border-color: #CFDCE8 !important;
+}
+.app-page .btn-light:hover,
+.app-page .guide-actions button:hover {
+  background: #DCE8F2 !important;
+}
+
+/* Guide dialogs and first-login announcement follow the same white content theme. */
+.guide-modal,
+.guide-announcement {
+  background: #FFFFFF !important;
+  color: var(--fs-text) !important;
+  border: 1px solid var(--fs-border) !important;
+  box-shadow: 0 22px 65px rgba(11, 37, 69, .24) !important;
+}
+.guide-modal h2,
+.guide-header h2,
+.guide-announcement h2 { color: var(--fs-text) !important; }
+.guide-modal p,
+.guide-description,
+.guide-announcement p { color: var(--fs-muted) !important; }
+.guide-tip,
+.guide-announcement .guide-tip {
+  background: #F2F6FA !important;
+  color: var(--fs-muted) !important;
+  border-color: var(--fs-border) !important;
+}
+.guide-actions .primary,
+.guide-announcement-actions .btn-primary {
+  background: var(--fs-brand-navy) !important;
+  color: #FFFFFF !important;
+  border-color: var(--fs-brand-navy) !important;
+}
+
+/* Popup alert: white card, clearly visible warning icon, and no black action button. */
+#robotAlertMount { position: relative; z-index: 10001; }
+.robot-alert {
+  background: #FFFFFF !important;
+  color: var(--fs-text) !important;
+  border: 1px solid var(--fs-border) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 18px 48px rgba(11, 37, 69, .20) !important;
+}
+.robot-avatar {
+  width: 46px !important;
+  height: 46px !important;
+  min-width: 46px !important;
+  flex: 0 0 46px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 13px !important;
+  background: var(--fs-brand-navy) !important;
+  color: #FFFFFF !important;
+  border: 2px solid #D8E6F2 !important;
+  box-shadow: 0 3px 10px rgba(11, 37, 69, .15) !important;
+}
+.robot-avatar .bi,
+.robot-avatar .bi::before,
+.robot-avatar i.bi-exclamation-triangle-fill {
+  display: inline-block !important;
+  color: #FFFFFF !important;
+  font-family: "bootstrap-icons" !important;
+  font-size: 23px !important;
+  line-height: 1 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+.robot-copy h3 { color: var(--fs-text) !important; }
+.robot-copy p { color: var(--fs-muted) !important; }
+.robot-actions { display: flex !important; gap: 9px !important; align-items: center !important; flex-wrap: wrap !important; }
+.robot-actions a,
+.robot-actions a:visited {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 8px 12px !important;
+  background: #EAF1F7 !important;
+  color: var(--fs-brand-navy) !important;
+  border: 1px solid #C9D8E6 !important;
+  border-radius: 7px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+.robot-actions a:hover { background: #DCE8F2 !important; }
+.robot-actions button {
+  padding: 8px 12px !important;
+  background: #FFFFFF !important;
+  color: var(--fs-muted) !important;
+  border: 1px solid var(--fs-border) !important;
+  border-radius: 7px !important;
+  font-weight: 600 !important;
+}
+.robot-actions button:hover { background: #F4F7FA !important; color: var(--fs-brand-navy) !important; }
+.robot-close { color: #53677B !important; }
+.robot-badge { background: var(--fs-brand-navy) !important; color: #FFFFFF !important; }
+
+/* Retain multiple colours only for the spending-category doughnut charts.
+   All trend/forecast charts use the same navy palette and readable axis labels. */
+
+
+/* ================================================================
+   FINAL BRAND RULES — STRICT DARK NAVY AND WHITE ONLY
+   All non-doughnut UI uses #0B2545 and #FFFFFF. The doughnut chart
+   category slices retain their separate colours in dashboard.js/report.js.
+   Typography remains Segoe UI; Bootstrap icons keep their own font.
+   ================================================================ */
+:root {
+  --fs-brand-navy: #0B2545;
+  --fs-brand-navy-hover: #0B2545;
+  --fs-brand-blue: #0B2545;
+  --fs-page: #FFFFFF;
+  --fs-surface: #FFFFFF;
+  --fs-surface-soft: #FFFFFF;
+  --fs-text: #0B2545;
+  --fs-muted: #0B2545;
+  --fs-border: rgba(11, 37, 69, .28);
+  --fs-font: "Segoe UI", Arial, sans-serif;
+  --ink: #0B2545;
+  --muted: #0B2545;
+  --line: rgba(11, 37, 69, .28);
+  --soft: #FFFFFF;
+  --purple: #0B2545;
+  --purple-dark: #0B2545;
+  --white: #FFFFFF;
+  --accent: #0B2545;
+  --accent-dark: #0B2545;
+  --accent-soft: #FFFFFF;
+  --danger: #0B2545;
+  --warning: #0B2545;
+  --success: #0B2545;
+}
+
+/* One font family throughout; icon glyphs retain the Bootstrap icon font. */
+html, body, body *, body *::before, body *::after,
+input, select, textarea, button {
+  font-family: var(--fs-font) !important;
+}
+.bi, .bi::before, [class^="bi-"], [class*=" bi-"]::before {
+  font-family: "bootstrap-icons" !important;
+}
+
+/* Strict white page surfaces and navy text. */
+html, body, .landing-page, .auth-page, body.app-page,
+.app-page, .app-page .app-main, .light-section,
+.hero-section, .section-block, .feature-grid, .steps-grid,
+.auth-shell, .auth-card, .metric-card, .panel, .form-section,
+.upload-panel, .progress-panel, .agent-card, .recommendation-card,
+.insight-item, .mini-item, .subscription-item, .alert-item,
+.upload-info-grid > div, .validation-check, .drop-zone,
+.comparison-stat, .comparison-summary, .comparison-table-wrap,
+.category-legend-item, .guide-modal, .guide-announcement,
+.preview-card, .feature-card, .step, .hero-preview,
+.table-scroll, .comparison-table-wrap, .form-grid {
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+}
+html, body { background: #FFFFFF !important; color: #000000 !important; }
+body { min-height: 100vh; }
+.app-page .app-main { border-top-left-radius: 0 !important; }
+
+/* Dark navy public-page header and footer. */
+.landing-nav, .landing-footer {
+  background: #0B2545 !important;
+  background-image: none !important;
+  color: #FFFFFF !important;
+  border-color: #0B2545 !important;
+}
+.landing-nav *, .landing-footer *,
+.landing-nav .brand, .landing-nav nav > a:not(.btn) {
+  color: #FFFFFF !important;
+}
+.landing-nav .brand-mark {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+}
+.landing-nav .brand-mark .bi { color: #000000 !important; }
+.hero-copy h1, .hero-copy h1 span, .section-heading h2,
+.section-heading p, .hero-copy p, .feature-card h3,
+.feature-card p, .step h3, .step p, .preview-top,
+.preview-card strong, .preview-card small {
+  color: #000000 !important;
+}
+.preview-dot { background: #0B2545 !important; }
+.preview-line { background: #FFFFFF !important; border: 1px solid #0B2545 !important; }
+.preview-chart {
+  background: linear-gradient(165deg, transparent 48%, #0B2545 49%, #0B2545 51%, transparent 52%);
+  border-bottom-color: #0B2545 !important;
+}
+
+/* Login and registration branding. Keep the previous standard logo sizing. */
+.auth-shell .auth-card {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  border: 1px solid rgba(11,37,69,.28) !important;
+}
+.auth-card h1, .auth-card label, .auth-card .brand,
+.auth-card .brand.centered, .auth-card > .muted,
+.auth-switch, .auth-switch a, .legal-note, .back-link {
+  color: #000000 !important;
+}
+.auth-card .brand, .auth-card .brand.centered {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  gap: 9px !important;
+}
+.auth-card .brand-mark {
+  width: 27px !important;
+  height: 27px !important;
+  border-radius: 7px !important;
+  background: #0B2545 !important;
+  color: #FFFFFF !important;
+  font-size: 14px !important;
+}
+.auth-card .brand-mark .bi,
+.auth-card .brand-mark .bi::before {
+  color: #FFFFFF !important;
+  font-size: 14px !important;
+}
+
+/* Sidebar and title banner use exactly the same solid navy. */
+.sidebar, .sidebar::before, .sidebar::after {
+  background: #0B2545 !important;
+  background-image: none !important;
+  border-color: #0B2545 !important;
+}
+.sidebar { box-shadow: none !important; }
+.sidebar .brand, .sidebar .brand span:not(.brand-mark),
+.sidebar .sidebar-bottom button, .sidebar .sidebar-bottom button span,
+.sidebar .sidebar-bottom button i, .sidebar-nav a,
+.sidebar-nav a span, .sidebar-nav a i,
+.sidebar .setup-lock-note, .sidebar .setup-lock-note span,
+.sidebar .setup-lock-note i {
+  color: #FFFFFF !important;
+}
+.sidebar .brand-mark {
+  width: 27px !important;
+  height: 27px !important;
+  background: #FFFFFF !important;
+  color: #000000 !important;
+}
+.sidebar .brand-mark .bi, .sidebar .brand-mark .bi::before {
+  color: #000000 !important;
+  font-size: 14px !important;
+}
+.sidebar-nav a:hover, .sidebar-nav a.active,
+.sidebar-bottom button:hover {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+}
+.sidebar-nav a:hover span, .sidebar-nav a.active span,
+.sidebar-nav a:hover i, .sidebar-nav a.active i,
+.sidebar-bottom button:hover span, .sidebar-bottom button:hover i {
+  color: #000000 !important;
+}
+.sidebar .setup-lock-note {
+  background: #0B2545 !important;
+  border-top: 1px solid #FFFFFF !important;
+  border-bottom: 1px solid #FFFFFF !important;
+}
+.app-page .page-title-row {
+  background: #0B2545 !important;
+  background-image: none !important;
+  color: #FFFFFF !important;
+  border: 0 !important;
+}
+.app-page .page-title-row h1,
+.app-page .page-title-row p,
+.app-page .page-title-row .eyebrow,
+.app-page .page-title-row .analysis-percent,
+.app-page .page-title-row .setup-progress,
+.app-page .page-title-row .setup-progress span {
+  color: #FFFFFF !important;
+  opacity: 1 !important;
+}
+.app-page .page-title-row .btn,
+.app-page .page-title-row .btn-light {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  border: 1px solid #FFFFFF !important;
+}
+
+/* Text, form controls, tables, badges and borders: navy on white only. */
+.app-page h1:not(.page-title-row h1), .app-page h2,
+.app-page h3, .app-page h4, .app-page h5,
+.app-page label, .app-page strong, .app-page td,
+.app-page th, .app-page li, .app-page p,
+.app-page small, .app-page .muted, .app-page .eyebrow,
+.app-page .field-help, .app-page .category-legend-name,
+.app-page .comparison-detail li, .app-page .transaction-group-toggle,
+.app-page .transaction-group-toggle span,
+.app-page .metric-card span, .app-page .metric-card strong,
+.app-page .metric-card small, .app-page .form-section h2,
+.app-page .panel-header h2, .app-page .panel-header p,
+.app-page .recommendation-card, .app-page .recommendation-card p,
+.app-page .comparison-detail > strong,
+.app-page .comparison-table .comparison-lower,
+.app-page .comparison-table .comparison-higher,
+.app-page .comparison-table .comparison-neutral,
+.app-page .item-value small {
+  color: #000000 !important;
+}
+.app-page input, .app-page select, .app-page textarea,
+#budgetYear, .monthly-budget-item input,
+.auth-card input, .auth-card select,
+.form-stack input, .form-stack select, .form-stack textarea {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  border: 1px solid rgba(11,37,69,.45) !important;
+  font-family: var(--fs-font) !important;
+}
+.app-page input::placeholder, .app-page textarea::placeholder,
+.monthly-budget-item input::placeholder,
+.auth-card input::placeholder, .form-stack input::placeholder {
+  color: #000000 !important;
+  opacity: .65 !important;
+}
+.app-page option { background: #FFFFFF !important; color: #000000 !important; }
+.app-page table, .app-page tbody, .app-page thead, .app-page tr {
+  background: #FFFFFF !important;
+}
+.app-page th, .app-page td {
+  color: #000000 !important;
+  background: #FFFFFF !important;
+  border-bottom-color: rgba(11,37,69,.28) !important;
+}
+.app-page .comparison-table th,
+.app-page .transaction-group-row td { background: #FFFFFF !important; color: #000000 !important; }
+.app-page .comparison-table td { color: #000000 !important; }
+.app-page .comparison-lower, .app-page .comparison-higher,
+.app-page .comparison-neutral { color: #000000 !important; }
+.app-page .item-icon, .app-page .category-badge,
+.app-page .status-pill, .app-page .severity,
+.app-page .validation-check, .app-page .validation-check.valid,
+.app-page .validation-check.invalid,
+.app-page .validation-check.pending {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  border-color: #0B2545 !important;
+}
+.app-page .item-icon i, .app-page .drop-zone > i,
+.app-page .agent-card > i, .app-page .validation-check i,
+.app-page .validation-check strong, .app-page .validation-check span {
+  color: #000000 !important;
+}
+.app-page .drop-zone { background: #FFFFFF !important; border: 1px dashed #0B2545 !important; }
+.app-page .btn-dark, .app-page .btn-primary,
+.app-page button.btn-dark, .app-page .guide-actions .primary,
+.auth-card .btn-dark, .auth-card .btn-primary {
+  background: #0B2545 !important;
+  color: #FFFFFF !important;
+  border-color: #0B2545 !important;
+}
+.app-page .btn-light, .app-page .guide-actions button,
+.auth-card .btn-light {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  border: 1px solid #0B2545 !important;
+}
+.app-page .btn:hover, .app-page button:hover,
+.auth-card .btn:hover { filter: none !important; }
+.app-page .btn-dark:hover, .app-page .btn-primary:hover,
+.app-page .guide-actions .primary:hover,
+.auth-card .btn-dark:hover {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  border-color: #0B2545 !important;
+}
+.app-page .btn-light:hover, .app-page .guide-actions button:hover {
+  background: #0B2545 !important;
+  color: #FFFFFF !important;
+  border-color: #0B2545 !important;
+}
+.app-page .text-link, .auth-switch a, .back-link,
+.auth-card a { color: #000000 !important; }
+.app-page .text-link:hover, .auth-card a:hover { color: #000000 !important; text-decoration: underline; }
+
+/* Status, validation and progress indicators remain navy/white. */
+.severity, .severity *, .status-pill, .status-pill *,
+.password-strength-track, .password-strength-track b,
+.progress-bar, .progress-bar b, .setup-progress div,
+.setup-progress b, .comparison-summary, .comparison-stat,
+.validation-check.valid, .validation-check.invalid {
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  border-color: #0B2545 !important;
+}
+.password-strength-track, .setup-progress div, .progress-bar {
+  border: 1px solid #0B2545 !important;
+}
+.password-strength-track b, .setup-progress b, .progress-bar b {
+  background: #0B2545 !important;
+}
+.form-message, .form-message.success, .password-requirements span,
+.password-requirements span.valid, .password-strength-top small,
+.password-strength-top strong { color: #000000 !important; }
+
+/* User guide and first-login announcement: white surface, navy content. */
+.guide-overlay, .guide-announcement-overlay {
+  background: rgba(11,37,69,.88) !important;
+}
+.guide-modal, .guide-announcement {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  border: 1px solid #0B2545 !important;
+}
+.guide-modal *, .guide-announcement * { color: #000000; }
+.guide-modal h2, .guide-header h2,
+.guide-announcement h2, .guide-modal p,
+.guide-description, .guide-announcement p,
+.guide-tip, .guide-tip span, .guide-close,
+.guide-announcement-close { color: #000000 !important; }
+.guide-tip, .guide-announcement .guide-tip {
+  background: #FFFFFF !important;
+  border: 1px solid #0B2545 !important;
+}
+.guide-actions .primary, .guide-announcement-actions .btn-primary {
+  background: #0B2545 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #0B2545 !important;
+}
+.guide-actions button, .guide-announcement-actions button {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  border: 1px solid #0B2545 !important;
+}
+
+/* Financial alert popup: dark navy panel with white text, icon and actions. */
+#robotAlertMount { position: relative; z-index: 10001; }
+.robot-alert {
+  background: #0B2545 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #0B2545 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 18px 48px rgba(11,37,69,.22) !important;
+}
+.robot-copy h3, .robot-copy p,
+.robot-actions a, .robot-actions a:visited,
+.robot-actions button, .robot-close {
+  color: #FFFFFF !important;
+}
+/* Keep the previous standard alert-icon dimensions; do not enlarge it. */
+.robot-avatar {
+  width: 43px !important;
+  height: 43px !important;
+  min-width: 43px !important;
+  flex: 0 0 43px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 13px !important;
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  border: 1px solid #FFFFFF !important;
+  box-shadow: none !important;
+}
+.robot-avatar .bi, .robot-avatar .bi::before,
+.robot-avatar i.bi-exclamation-triangle-fill {
+  display: inline-block !important;
+  color: #000000 !important;
+  font-family: "bootstrap-icons" !important;
+  font-size: 21px !important;
+  line-height: 1 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+.robot-actions { display: flex !important; gap: 9px !important; align-items: center !important; flex-wrap: wrap !important; }
+.robot-actions a, .robot-actions a:visited {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  border: 1px solid #FFFFFF !important;
+  border-radius: 7px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+}
+.robot-actions button {
+  background: #0B2545 !important;
+  color: #FFFFFF !important;
+  border: 1px solid #FFFFFF !important;
+  border-radius: 7px !important;
+  font-weight: 600 !important;
+}
+.robot-actions a:hover, .robot-actions button:hover {
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  border-color: #FFFFFF !important;
+}
+.robot-close { background: transparent !important; color: #FFFFFF !important; }
+.robot-badge { background: #FFFFFF !important; color: #000000 !important; }
+
+/* Keep navigation and common icons at the existing standard dimensions. */
+.sidebar-nav a i, .sidebar-bottom button i { font-size: 14px !important; }
+.sidebar .brand-mark .bi, .auth-card .brand-mark .bi { font-size: 14px !important; }
+
+/* Multicolour is intentionally restricted to the category doughnut slices. */
+
+/* Final palette enforcement for every remaining text/content component. */
+.app-page .app-main *:not(canvas):not(.category-legend-dot) {
+  color: #000000 !important;
+  background-color: #FFFFFF !important;
+  border-color: rgba(11,37,69,.28) !important;
+}
+.app-page .app-main .page-title-row,
+.app-page .app-main .page-title-row * {
+  background-color: transparent !important;
+  color: #FFFFFF !important;
+  border-color: #FFFFFF !important;
+}
+.app-page .app-main .page-title-row {
+  background-color: #0B2545 !important;
+  border-color: #0B2545 !important;
+}
+.app-page .app-main .page-title-row .btn,
+.app-page .app-main .page-title-row .btn-light {
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  border-color: #FFFFFF !important;
+}
+.app-page .app-main .btn-dark,
+.app-page .app-main .btn-primary,
+.app-page .app-main .guide-actions .primary,
+.app-page .app-main .btn-dark *,
+.app-page .app-main .btn-primary *,
+.app-page .app-main .guide-actions .primary * {
+  background-color: #0B2545 !important;
+  color: #FFFFFF !important;
+  border-color: #0B2545 !important;
+}
+.app-page .app-main .btn-light,
+.app-page .app-main .guide-actions button,
+.app-page .app-main .btn-light * {
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  border-color: #0B2545 !important;
+}
+.app-page .app-main .robot-alert {
+  background-color: #0B2545 !important;
+  color: #FFFFFF !important;
+  border-color: #0B2545 !important;
+}
+.app-page .app-main .robot-alert .robot-copy h3,
+.app-page .app-main .robot-alert .robot-copy p,
+.app-page .app-main .robot-alert .robot-close {
+  background-color: transparent !important;
+  color: #FFFFFF !important;
+}
+.app-page .app-main .robot-avatar,
+.app-page .app-main .robot-avatar .bi {
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  border-color: #FFFFFF !important;
+}
+.app-page .app-main .robot-actions a {
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  border-color: #FFFFFF !important;
+}
+.app-page .app-main .robot-actions button {
+  background-color: #0B2545 !important;
+  color: #FFFFFF !important;
+  border-color: #FFFFFF !important;
+}
+.auth-page, .auth-page * {
+  color: #000000 !important;
+  background-color: #FFFFFF !important;
+  border-color: rgba(11,37,69,.28) !important;
+}
+.auth-page .brand-mark,
+.auth-page .brand-mark .bi,
+.auth-page .brand-mark .bi::before {
+  background-color: #0B2545 !important;
+  color: #FFFFFF !important;
+  border-color: #0B2545 !important;
+}
+.auth-page .btn-dark,
+.auth-page .btn-dark * {
+  background-color: #0B2545 !important;
+  color: #FFFFFF !important;
+  border-color: #0B2545 !important;
+}
+.landing-page * {
+  color: #000000 !important;
+}
+.landing-page .landing-nav,
+.landing-page .landing-nav *,
+.landing-page .landing-footer,
+.landing-page .landing-footer * {
+  background-color: #0B2545 !important;
+  color: #FFFFFF !important;
+  border-color: #0B2545 !important;
+}
+.landing-page .landing-nav .brand-mark,
+.landing-page .landing-nav .brand-mark .bi {
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+}
+
+
+/* FinSight landing-page refinement (31 October 2026)
+   Full-width solid navy hero banner, white hero copy, and matching Login/Get Started CTAs. */
+.landing-page .hero-section {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 105px max(6%, calc((100% - 1180px) / 2)) 90px !important;
+  background: #0B2545 !important;
+  background-image: none !important;
+  color: #FFFFFF !important;
+}
+
+.landing-page .hero-copy,
+.landing-page .hero-copy .eyebrow,
+.landing-page .hero-copy h1,
+.landing-page .hero-copy h1 span,
+.landing-page .hero-copy p,
+.landing-page .hero-copy .text-link {
+  color: #FFFFFF !important;
+}
+
+.landing-page .hero-copy .eyebrow {
+  opacity: .92;
+}
+
+.landing-page .hero-copy p {
+  opacity: .94;
+}
+
+/* The Login and Get Started links share exactly the same dimensions and appearance. */
+.landing-page .landing-nav .landing-cta,
+.landing-page .hero-section .landing-cta {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  min-height: 42px !important;
+  padding: 11px 17px !important;
+  border: 1px solid #FFFFFF !important;
+  border-radius: 8px !important;
+  background: #FFFFFF !important;
+  color: #000000 !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  text-decoration: none !important;
+  box-shadow: none !important;
+}
+
+.landing-page .landing-nav .landing-cta *,
+.landing-page .hero-section .landing-cta * {
+  background: transparent !important;
+  color: #000000 !important;
+}
+
+.landing-page .landing-nav .landing-cta:hover,
+.landing-page .hero-section .landing-cta:hover,
+.landing-page .landing-nav .landing-cta:focus-visible,
+.landing-page .hero-section .landing-cta:focus-visible {
+  background: #0B2545 !important;
+  color: #FFFFFF !important;
+  border-color: #FFFFFF !important;
+  outline: 2px solid #FFFFFF !important;
+  outline-offset: 3px !important;
+}
+
+.landing-page .landing-nav .landing-cta:hover *,
+.landing-page .hero-section .landing-cta:hover *,
+.landing-page .landing-nav .landing-cta:focus-visible *,
+.landing-page .hero-section .landing-cta:focus-visible * {
+  background: transparent !important;
+  color: #FFFFFF !important;
+}
+
+@media (max-width: 1000px) {
+  .landing-page .hero-section {
+    padding: 70px 6% !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .landing-page .hero-section {
+    padding: 60px 20px !important;
+    gap: 35px !important;
+  }
+}
+
+
+/* Requested functional and interaction fixes (31 October 2026) */
+/* Keep the existing navy design; make only the analysis progress fill black. */
+.app-page .app-main .progress-bar > b,
+.app-page .app-main #analysisBar {
+  background-color: #000000 !important;
+  background-image: none !important;
+}
+
+/* Successful validation indicators must remain green. */
+.auth-page #passwordRequirements span.valid i,
+.auth-page #passwordRequirements span.valid i::before,
+.app-page .app-main .validation-check.valid > i,
+.app-page .app-main .validation-check.valid > i::before {
+  color: #198754 !important;
+  background-color: transparent !important;
+}
+
+/* Clear visible borders on the transaction upload and mark-all-read actions. */
+#uploadButton,
+#readAllAlerts {
+  border: 1px solid currentColor !important;
+  outline: none;
+}
+
+/* Consistent hover feedback without changing the existing button palette. */
+button:not(:disabled),
+a.btn,
+.btn:not(:disabled),
+.guide-actions button:not(:disabled) {
+  transition: transform .18s ease, box-shadow .18s ease, filter .18s ease !important;
+}
+button:not(:disabled):hover,
+a.btn:hover,
+.btn:not(:disabled):hover,
+.guide-actions button:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .16);
+}
+button:disabled,
+.btn:disabled {
+  transform: none !important;
+  box-shadow: none !important;
+}

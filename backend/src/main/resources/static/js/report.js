@@ -1,4 +1,6 @@
 /* FinSight File Notes: Loads and renders the detailed financial report, charts, forecasts, insights, recommendations, and alerts. */
+// FinSight chart defaults: match the application's typography and white content surfaces.
+if (window.Chart) { Chart.defaults.font.family = "Segoe UI, Arial, sans-serif"; Chart.defaults.color = "#0B2545"; }
 async function loadReport(){
   try{
     if (isAnalysisRunning()) { showAnalysisPendingPage(); return; }
@@ -7,7 +9,7 @@ async function loadReport(){
     if(uploadId)localStorage.setItem("finsight_last_upload_id",String(uploadId));
     qs("#incomeValue").textContent=money(a.totalIncome);qs("#expenseValue").textContent=money(a.totalExpense);qs("#savingsValue").textContent=money(a.totalSavings);qs("#averageValue").textContent=money(a.averageExpense);
     const tx=Array.isArray(txs)?txs:[];const monthly={};tx.filter(t=>String(t.type)==="EXPENSE").forEach(t=>{const k=String(t.transactionDate||"").slice(0,7);if(k)monthly[k]=(monthly[k]||0)+Number(t.amount||0);});const months=Object.entries(monthly).sort(([x],[y])=>x.localeCompare(y));
-    new Chart(qs("#reportTrend"),{type:"line",data:{labels:months.map(([m])=>{const [y,mo]=m.split("-");return new Date(Number(y),Number(mo)-1,1).toLocaleDateString(undefined,{month:"short",year:"numeric"});}),datasets:[{label:"Expenses",data:months.map(([,v])=>v),tension:.35,borderColor:"#174A73",backgroundColor:"rgba(23,74,115,.08)",pointBackgroundColor:"#174A73",pointBorderColor:"#FFFFFF",pointRadius:4,borderWidth:3,fill:true}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:context=>`Expenses: ${money(context.raw)}`}}},scales:{x:{ticks:{color:"#64748B"},grid:{color:"rgba(148,163,184,.22)"}},y:{beginAtZero:true,ticks:{color:"#64748B",callback:value=>money(value)},grid:{color:"rgba(148,163,184,.22)"}}}}});
+    new Chart(qs("#reportTrend"),{type:"line",data:{labels:months.map(([m])=>{const [y,mo]=m.split("-");return new Date(Number(y),Number(mo)-1,1).toLocaleDateString(undefined,{month:"short",year:"numeric"});}),datasets:[{label:"Expenses",data:months.map(([,v])=>v),tension:.35,borderColor:"#0B2545",backgroundColor:"rgba(11,37,69,.12)",pointBackgroundColor:"#0B2545",pointBorderColor:"#FFFFFF",pointRadius:4,borderWidth:3,fill:true}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:context=>`Expenses: ${money(context.raw)}`}}},scales:{x:{ticks:{color:"#0B2545"},grid:{color:"rgba(11,37,69,.14)"}},y:{beginAtZero:true,ticks:{color:"#0B2545",callback:value=>money(value)},grid:{color:"rgba(11,37,69,.14)"}}}}});
     const cats=Object.entries(a.spendingByCategory||{}).filter(([,v])=>Number(v)>0);
     const chartColors=["#3B82F6","#06B6D4","#10B981","#F59E0B","#EF4444","#8B5CF6","#EC4899","#14B8A6","#F97316","#6366F1","#84CC16","#EAB308"];
     const reportCanvas=qs("#reportCategory");

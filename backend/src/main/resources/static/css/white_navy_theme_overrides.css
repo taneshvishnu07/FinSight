@@ -182,7 +182,8 @@ td { color: #263B52 !important; border-bottom: 1px solid #E8EDF3 !important; }
 .robot-avatar { background: #174A73 !important; color: #FFFFFF !important; }
 .robot-copy h3 { color: #173B5C !important; }
 .robot-copy p, .robot-actions button, .robot-close { color: #607086 !important; }
-.robot-actions a { color: #174A73 !important; }
+.robot-actions button,
+.robot-actions a {background: transparent !important; color: #174A73 !important; border: none !important; box-shadow: none !important; }
 .robot-badge { background: #174A73 !important; color: #FFFFFF !important; }
 
 /* Alert and status indicators keep restrained semantic colours. */

@@ -1,4 +1,6 @@
 /* FinSight File Notes: Loads and renders the main dashboard metrics, charts, comparisons, and financial summaries. */
+// FinSight chart defaults: match the application's typography and white content surfaces.
+if (window.Chart) { Chart.defaults.font.family = "Segoe UI, Arial, sans-serif"; Chart.defaults.color = "#0B2545"; }
 document.addEventListener("DOMContentLoaded", async () => {
   const user = currentUser();
   if (isAnalysisRunning()) {
@@ -97,9 +99,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             data: recentMonths.map(m => byMonth[m].expense),
             tension: .35,
             fill: false,
-            borderColor: "#174A73",
-            backgroundColor: "rgba(23,74,115,.08)",
-            pointBackgroundColor: "#174A73",
+            borderColor: "#0B2545",
+            backgroundColor: "rgba(11,37,69,.12)",
+            pointBackgroundColor: "#0B2545",
             pointBorderColor: "#FFFFFF",
             pointRadius: 4,
             borderWidth: 3
@@ -108,8 +110,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         options: {
           plugins: { legend: { display: false }, tooltip: { callbacks: { label: context => `Expenses: ${money(context.raw)}` } } },
           scales: {
-            x: { ticks: { color: "#64748B" }, grid: { color: "rgba(148,163,184,.22)" } },
-            y: { beginAtZero: true, ticks: { color: "#64748B", callback: value => money(value) }, grid: { color: "rgba(148,163,184,.22)" } }
+            x: { ticks: { color: "#0B2545" }, grid: { color: "rgba(11,37,69,.14)" } },
+            y: { beginAtZero: true, ticks: { color: "#0B2545", callback: value => money(value) }, grid: { color: "rgba(11,37,69,.14)" } }
           },
           maintainAspectRatio: false
         }
@@ -207,9 +209,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 return income > 0 ? (byMonth[m].savings / income) * 100 : 0;
               }),
               tension: .3,
-              borderColor: "#174A73",
-              backgroundColor: "rgba(23,74,115,.08)",
-              pointBackgroundColor: "#174A73",
+              borderColor: "#0B2545",
+              backgroundColor: "rgba(11,37,69,.12)",
+              pointBackgroundColor: "#0B2545",
               pointBorderColor: "#FFFFFF",
               pointRadius: 4,
               borderWidth: 3,
@@ -220,8 +222,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             maintainAspectRatio: false,
             plugins: { legend: { display: false }, tooltip: { callbacks: { label: context => `Savings rate: ${Number(context.raw).toFixed(1)}%` } } },
             scales: {
-              x: { ticks: { color: "#64748B" }, grid: { color: "rgba(148,163,184,.22)" } },
-              y: { beginAtZero: true, ticks: { color: "#64748B", callback: value => `${value}%` }, grid: { color: "rgba(148,163,184,.22)" } }
+              x: { ticks: { color: "#0B2545" }, grid: { color: "rgba(11,37,69,.14)" } },
+              y: { beginAtZero: true, ticks: { color: "#0B2545", callback: value => `${value}%` }, grid: { color: "rgba(11,37,69,.14)" } }
             }
           }
         });

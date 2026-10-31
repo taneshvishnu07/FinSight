@@ -197,10 +197,10 @@ async function enforceProfileGate() {
 }
 
 if (window.Chart) {
-  Chart.defaults.color = "#475569";
-  Chart.defaults.borderColor = "#E2E8F0";
-  Chart.defaults.scale.grid.color = "#E8EDF3";
-  Chart.defaults.plugins.legend.labels.color = "#475569";
+  Chart.defaults.color = "#0B2545";
+  Chart.defaults.borderColor = "rgba(11,37,69,.22)";
+  Chart.defaults.scale.grid.color = "rgba(11,37,69,.14)";
+  Chart.defaults.plugins.legend.labels.color = "#0B2545";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
