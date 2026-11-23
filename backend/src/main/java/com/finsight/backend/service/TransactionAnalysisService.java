@@ -1,0 +1,26 @@
+package com.finsight.backend.service;
+
+import com.finsight.backend.dto.analysis.TransactionAnalysisResponse;
+
+public interface TransactionAnalysisService {
+
+    /*
+     * Run analysis for one uploaded transaction file.
+     */
+    TransactionAnalysisResponse analyseUpload(
+            Long uploadHistoryId
+    );
+
+    /*
+     * Get one analysis.
+     */
+    TransactionAnalysisResponse getAnalysisById(
+            Long analysisId
+    );
+
+    /*
+     * Get the latest analysis for the authenticated user.
+     */
+    TransactionAnalysisResponse getLatestAnalysis();
+
+}

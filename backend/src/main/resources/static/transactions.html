@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<!-- FinSight File Notes: Defines the transaction-history page with monthly grouping and collapse controls. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transactions | FinSight</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="css/style.css?v=20261121-dashboard-csv-polish"><link rel="stylesheet" href="css/responsive.css">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+<body class="app-page">
+  <div id="appShell"></div>
+  <main class="app-main">
+    <div class="page-title-row"><div><span class="eyebrow">DATA</span><h1>Upload Transaction File</h1><p>Upload at least 3 months of transaction data for meaningful analysis.</p></div></div>
+    <section class="panel csv-requirements-panel">
+      <div class="panel-header"><div><h2>CSV File Requirements</h2><p class="muted">Prepare your transaction file using the columns and formats below before uploading.</p></div><a class="btn btn-light" href="sample-transactions-template.csv" download><i class="bi bi-download"></i> Download Sample CSV</a></div>
+      <div class="csv-column-summary"><div><strong>3 required columns</strong><span>Date · Description · Amount</span></div><div><strong>3 optional columns</strong><span>Type · Category · Payment Method</span></div><div><strong>Minimum history</strong><span>At least 3 months in one file</span></div></div>
+      <div class="csv-table-heading"><h3>Column guide</h3><span>Use the exact column names in your first row.</span></div>
+      <div class="table-scroll"><table class="csv-requirements-table"><thead><tr><th>Column</th><th>Requirement</th><th>Format and accepted values</th><th>Example</th></tr></thead><tbody>
+        <tr class="csv-required-row"><td><strong>Date</strong></td><td><span class="csv-field-tag required">Required</span></td><td>YYYY-MM-DD recommended. Also accepts DD/MM/YYYY, MM/DD/YYYY, DD-MM-YYYY, MM-DD-YYYY and YYYY/MM/DD.</td><td><code>2026-04-01</code></td></tr>
+        <tr class="csv-required-row"><td><strong>Description</strong></td><td><span class="csv-field-tag required">Required</span></td><td>Text describing the transaction.</td><td><code>Monthly Allowance</code></td></tr>
+        <tr class="csv-required-row"><td><strong>Amount</strong></td><td><span class="csv-field-tag required">Required</span></td><td>Numeric amount. Use a positive amount with Type to identify income or expense.</td><td><code>1200.00</code></td></tr>
+        <tr><td><strong>Type</strong></td><td><span class="csv-field-tag optional">Optional</span></td><td>INCOME or EXPENSE. Also accepts CREDIT/DEPOSIT or DEBIT/WITHDRAWAL.</td><td><code>INCOME</code></td></tr>
+        <tr><td><strong>Category</strong></td><td><span class="csv-field-tag optional">Optional</span></td><td>FOOD, GROCERIES, TRANSPORTATION, HOUSING, UTILITIES, HEALTHCARE, ENTERTAINMENT, SHOPPING, EDUCATION, SUBSCRIPTION, TRAVEL, PERSONAL_CARE, FINANCIAL, INVESTMENT, SALARY or OTHER.</td><td><code>HOUSING</code></td></tr>
+        <tr><td><strong>Payment Method</strong></td><td><span class="csv-field-tag optional">Optional</span></td><td>CASH, DEBIT_CARD, CREDIT_CARD, BANK_TRANSFER, DUITNOW, E_WALLET, CHEQUE or OTHER.</td><td><code>BANK_TRANSFER</code></td></tr>
+      </tbody></table></div>
+      <div class="csv-guidance-grid"><div class="csv-guidance-card"><strong><i class="bi bi-info-circle"></i> Default behaviour</strong><ul><li>If Type is omitted, negative amounts are treated as expenses and positive amounts as income.</li><li>If Category is omitted, the transaction is assigned to OTHER.</li><li>If Payment Method is omitted, the system applies its default payment method.</li></ul></div><div class="csv-guidance-card"><strong><i class="bi bi-file-earmark-check"></i> Before uploading</strong><ul><li>Include the column headers in the first row.</li><li>Upload one CSV file containing at least three months of transactions.</li><li>Save as CSV (comma-delimited); UTF-8 encoding is recommended.</li></ul></div></div>
+    </section>
+
+    <section class="upload-panel">
+      <div class="drop-zone" id="dropZone"><i class="bi bi-cloud-arrow-up"></i><h2>Drag and drop your file here</h2><p>CSV files are supported. The current backend requires one CSV containing at least 3 months of transaction history.</p><label class="btn btn-light file-button">Browse CSV File<input id="fileInput" type="file" accept=".csv" hidden></label><p id="selectedFile" class="selected-file">No file selected</p><div id="fileValidation" class="file-validation hidden" aria-live="polite"><div id="formatCheck" class="validation-check"><i class="bi bi-circle"></i><span>File format</span><strong>Not checked</strong></div><div id="monthsCheck" class="validation-check"><i class="bi bi-circle"></i><span>Transaction period</span><strong>Not checked</strong></div><div id="columnsCheck" class="validation-check"><i class="bi bi-circle"></i><span>Required columns</span><strong>Not checked</strong></div></div></div>
+      <div class="upload-info-grid"><div><span>Required period</span><strong>3+ months</strong></div><div><span>Recommended</span><strong>6 - 12 months</strong></div><div><span>Analysis</span><strong>Automatic</strong></div></div>
+      <div id="uploadMessage" class="form-message"></div>
+      <div class="form-actions"><button id="cancelUpload" class="btn btn-light">Clear</button><button id="uploadButton" class="btn btn-dark">Start Analysis <i class="bi bi-arrow-right"></i></button></div>
+    </section>
+
+    <section class="panel" id="allTransactions"><div class="panel-header"><div><h2>All Transactions</h2><p class="muted">Transaction records grouped by month. Expand or collapse individual months, or use the controls below.</p></div><div class="transaction-collapse-actions"><button type="button" id="collapseAllTransactions" class="btn btn-light btn-sm">Collapse all</button></div></div><div class="table-scroll"><table><thead><tr><th colspan="5">Transaction history</th></tr></thead><tbody id="allTransactionsBody"><tr><td colspan="5">Loading transactions...</td></tr></tbody></table></div></section>
+    <section class="panel"><div class="panel-header"><div><h2>Recent Upload Activity</h2><p class="muted">Your latest transaction files.</p></div></div><div class="table-scroll"><table><thead><tr><th>File</th><th>Date</th><th>Transactions</th><th>Status</th></tr></thead><tbody id="uploadHistory"></tbody></table></div></section>
+  </main>
+  <div id="userGuideMount"></div>
+  <script src="js/api.js"></script><script src="js/common.js"></script><script src="js/user-guide.js"></script><script src="js/alerts.js"></script><script src="js/transactions.js"></script>
+</body>
+</html>

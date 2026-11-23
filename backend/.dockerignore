@@ -1,0 +1,6 @@
+target
+.git
+.vscode
+**/__pycache__
+**/*.pyc
+ai-service/.venv
