@@ -13,6 +13,11 @@ import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * CRUD for the logged-in user's financial profile (occupation, goals, student/employee
+ * details), mounted under /api/financial-profile. A user has at most one profile; it
+ * is created right after registration.
+ */
 @RestController
 @RequestMapping("/api/financial-profile")
 @RequiredArgsConstructor

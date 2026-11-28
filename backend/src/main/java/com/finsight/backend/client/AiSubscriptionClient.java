@@ -13,17 +13,28 @@ import org.springframework.web.client.RestClient;
 import com.finsight.backend.dto.subscription.SubscriptionDetectionResponse;
 import com.finsight.backend.entity.Transaction;
 
+/**
+ * HTTP client for POST /api/subscriptions (recurring subscription detection).
+ */
 @Component
 public class AiSubscriptionClient {
 
     private final RestClient restClient;
 
+    /**
+     * Reads the AI service address from `finsight.ai-service.url` (default
+     * http://127.0.0.1:8000) and builds a RestClient for it.
+     */
     public AiSubscriptionClient(
             RestClient.Builder restClientBuilder,
             @Value("${finsight.ai-service.url:http://127.0.0.1:8000}") String aiServiceUrl) {
         this.restClient = AiRestClientFactory.create(restClientBuilder, aiServiceUrl);
     }
 
+    /**
+     * Send the transactions and return detected subscriptions with their estimated
+     * monthly/yearly cost.
+     */
     public SubscriptionDetectionResponse detect(List<Transaction> transactions) {
         Map<String, Object> request = new LinkedHashMap<>();
         request.put("transactions", AiTransactionPayloadBuilder.build(transactions));

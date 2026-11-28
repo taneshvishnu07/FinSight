@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Unusual (anomalous) spending detection, mounted under /api/anomalies.
+ */
 @RestController
 @RequestMapping("/api/anomalies")
 @RequiredArgsConstructor
@@ -17,6 +20,10 @@ public class UnusualSpendingController {
             unusualSpendingDetectionService;
 
 
+    /**
+     * POST /api/anomalies/detect/{uploadHistoryId} - find unusually large expenses in
+     * the upload using the AI service.
+     */
     @PostMapping("/detect/{uploadHistoryId}")
     public ResponseEntity<AnomalyDetectionResponse>
             detectAnomalies(

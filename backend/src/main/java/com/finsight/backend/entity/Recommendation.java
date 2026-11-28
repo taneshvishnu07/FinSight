@@ -18,6 +18,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * A saved piece of advice produced by the AI service for an analysis (table
+ * `recommendations`). `generatedBy` records which component created it;
+ * `accepted`/`dismissed` track what the user did with it.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

@@ -11,11 +11,21 @@ import com.finsight.backend.entity.FinancialProfile;
 import com.finsight.backend.entity.MonthlyBudget;
 import com.finsight.backend.entity.StudentDetails;
 
+/**
+ * Converts a FinancialProfile entity into the plain JSON map the AI service expects as
+ * `financialProfile` (occupation, savings goal, monthly budgets and the student or
+ * employee details). Utility class - static methods only.
+ */
 public final class AiFinancialProfilePayloadBuilder {
 
     private AiFinancialProfilePayloadBuilder() {
     }
 
+    /**
+     * Null-safe conversion; returns an empty map for a null profile. Keys match what
+     * the Python recommendation/alert agents read (e.g. monthlyAllowance,
+     * monthlySalary, monthlyBudgets).
+     */
     public static Map<String, Object> build(FinancialProfile profile) {
         Map<String, Object> payload = new LinkedHashMap<>();
         if (profile == null) {
@@ -59,10 +69,16 @@ public final class AiFinancialProfilePayloadBuilder {
         return payload;
     }
 
+    /**
+     * Null becomes zero.
+     */
     private static BigDecimal number(BigDecimal value) {
         return value == null ? BigDecimal.ZERO : value;
     }
 
+    /**
+     * Null becomes an empty string.
+     */
     private static String text(String value) {
         return value == null ? "" : value;
     }

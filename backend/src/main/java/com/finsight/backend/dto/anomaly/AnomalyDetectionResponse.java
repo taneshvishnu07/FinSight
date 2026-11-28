@@ -8,6 +8,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Unusual-spending result. Mirrors the JSON of the Python /api/unusual-spending
+ * endpoint; the backend then fills in the upload id and file name.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

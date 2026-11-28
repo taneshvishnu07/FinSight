@@ -1,4 +1,8 @@
 /* FinSight File Notes: Loads alerts and controls the persistent alert popup shown across the application. */
+// Shared alert helper (window.FinSightAlerts) used by several pages. Alert and
+// analysis ids that the user dismissed are remembered in localStorage so the popup is
+// not shown again (the last 300 are kept). get() loads alerts for an upload, and
+// showOnDashboard() renders the persistent alert popup on the main app pages.
 window.FinSightAlerts={
  getDismissed(){try{return new Set(JSON.parse(localStorage.getItem("finsight_dismissed_alert_ids")||"[]").map(String));}catch{return new Set();}},
  saveDismissed(s){localStorage.setItem("finsight_dismissed_alert_ids",JSON.stringify([...s].slice(-300)));},

@@ -10,6 +10,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Result of the basic per-upload analysis: totals, counts, average/largest expense,
+ * spending per category, subscription / unusual / recommendation counts and a summary
+ * text.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

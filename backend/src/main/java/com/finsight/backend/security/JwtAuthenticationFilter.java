@@ -20,6 +20,14 @@ import org.springframework.stereotype.Component;
 
 import org.springframework.web.filter.OncePerRequestFilter;
 
+/**
+ * Runs once per request. Reads "Authorization: Bearer <token>", validates the JWT and,
+ * if valid, stores the authenticated user in the SecurityContext so controllers can
+ * access it.
+ *
+ * Requests without a token, or with an invalid one, simply continue unauthenticated;
+ * SecurityConfig then rejects them on protected routes.
+ */
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -28,6 +36,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final CustomUserDetailsService userDetailsService;
 
+    /**
+     * Core filter logic: extract the token, look up the user by the email stored in
+     * it, validate it, and set the authentication.
+     */
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
@@ -69,6 +81,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // Authenticate user
             // -------------------------------------------------
 
+            // Only authenticate if nobody has authenticated this request already.
             if (email != null
                     && SecurityContextHolder
                             .getContext()
@@ -103,6 +116,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
 
+        // Any problem (expired, malformed or tampered token, unknown user) means "not
+        // authenticated": clear the context and carry on.
         } catch (Exception e) {
 
             // Invalid JWT.

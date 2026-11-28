@@ -7,6 +7,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * One flagged expense: merchant, amount, date, anomaly score, severity
+ * (MEDIUM/HIGH/CRITICAL) and an explanation.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

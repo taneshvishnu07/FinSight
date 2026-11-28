@@ -7,6 +7,12 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Body of POST /api/auth/register with validation rules: full name = first and last
+ * name (letters, spaces, hyphens, apostrophes); valid email; password 8-72 characters
+ * with upper-case, lower-case, digit and special character. Keep in sync with the
+ * checks in static/js/auth.js.
+ */
 @Getter
 @Setter
 public class RegisterRequest {

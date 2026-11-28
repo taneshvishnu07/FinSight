@@ -1,5 +1,6 @@
 spring:
 
+  # Production profile: every secret and address comes from environment variables (DATABASE_URL, DATABASE_USERNAME, DATABASE_PASSWORD, JWT_SECRET, FINSIGHT_AI_SERVICE_URL, optional PORT / JWT_EXPIRATION).
   datasource:
     url: ${DATABASE_URL}
     username: ${DATABASE_USERNAME}
@@ -7,6 +8,7 @@ spring:
 
   jpa:
     hibernate:
+      # Hibernate only checks the schema matches the entities; it never changes it in production.
       ddl-auto: validate
 
     show-sql: false

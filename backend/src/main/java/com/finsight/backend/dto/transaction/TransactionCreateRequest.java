@@ -15,6 +15,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Body for creating a transaction manually. Amount must be at least 0.01 and positive
+ * - `type` says income or expense. `uploadHistoryId` is optional.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

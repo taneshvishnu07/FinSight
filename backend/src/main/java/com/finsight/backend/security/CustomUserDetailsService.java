@@ -14,6 +14,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Bridges our User table and Spring Security: loads a user by email so Spring can
+ * verify passwords (login) and the JWT filter can restore the user (each request).
+ */
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService
@@ -21,6 +25,11 @@ public class CustomUserDetailsService
 
     private final UserRepository userRepository;
 
+    /**
+     * Find the user by email (the "username" in this app). Grants one authority,
+     * "ROLE_" + role name, and respects the `enabled` flag. Throws
+     * UsernameNotFoundException if the email is unknown.
+     */
     @Override
     public UserDetails loadUserByUsername(
             String email)

@@ -37,6 +37,14 @@ import com.finsight.backend.service.UnusualSpendingDetectionService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Generates, stores and reads spending alerts for an upload.
+ *
+ * Alerts are produced by the Python AI service (rule-based AlertAgent) and saved as
+ * SpendingAlert rows linked to the upload's FinancialAnalysis. Alerts of type
+ * LARGE_TRANSACTION are deliberately filtered out everywhere (unusual purchases are
+ * already shown as UNUSUAL_SPENDING alerts).
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -55,6 +63,15 @@ public class AlertServiceImpl implements AlertService {
     private final UnusualSpendingDetectionService unusualSpendingDetectionService;
     private final AiAlertClient aiAlertClient;
 
+    /**
+     * (Re)generate alerts for the upload.
+     *
+     * Flow: ownership check -> find the upload's FinancialAnalysis (analysis must have
+     * been run first) -> load transactions -> run subscription and unusual-spending
+     * detection -> call the AI alert service -> delete the old alerts and save the new
+     * ones (all unread) -> update the analysis counts/summary -> return the response.
+     * Deleting first keeps the call idempotent.
+     */
     @Override
     public AlertResponse generateAlerts(Long uploadHistoryId) {
         Objects.requireNonNull(
@@ -195,6 +212,9 @@ public class AlertServiceImpl implements AlertService {
         return response;
     }
 
+    /**
+     * Read the saved alerts and the unread count for the upload.
+     */
     @Override
     @Transactional(readOnly = true)
     public AlertResponse getAlerts(Long uploadHistoryId) {
@@ -245,6 +265,9 @@ public class AlertServiceImpl implements AlertService {
         );
     }
 
+    /**
+     * Mark every alert of the upload as read and return the updated list.
+     */
     @Override
     public AlertResponse markAllAsRead(Long uploadHistoryId) {
 
@@ -290,6 +313,9 @@ public class AlertServiceImpl implements AlertService {
         );
     }
 
+    /**
+     * Mark one alert as read; the alert must belong to this upload's analysis.
+     */
     @Override
     public AlertResponse markAsRead(Long uploadHistoryId, Long alertId) {
 
@@ -333,6 +359,10 @@ public class AlertServiceImpl implements AlertService {
         );
     }
 
+    /**
+     * Convert saved SpendingAlert rows into the API response and count how many are
+     * still unread (LARGE_TRANSACTION alerts are skipped).
+     */
     private AlertResponse buildResponse(
             FinancialAnalysis analysis,
             UploadHistory uploadHistory,
@@ -431,6 +461,10 @@ public class AlertServiceImpl implements AlertService {
         return response;
     }
 
+    /**
+     * The FinancialAnalysis from the upload's most recent analysis job that has one;
+     * throws IllegalStateException if the analysis has not been run yet.
+     */
     private FinancialAnalysis getFinancialAnalysis(
             UploadHistory uploadHistory) {
 
@@ -467,6 +501,9 @@ public class AlertServiceImpl implements AlertService {
         );
     }
 
+    /**
+     * Load the upload and verify it belongs to the given profile.
+     */
     private UploadHistory getUploadHistory(
             Long uploadHistoryId,
             FinancialProfile profile) {
@@ -483,6 +520,9 @@ public class AlertServiceImpl implements AlertService {
                 );
     }
 
+    /**
+     * Resolve the logged-in user from the SecurityContext.
+     */
     private User getAuthenticatedUser() {
 
         Authentication authentication =
@@ -511,6 +551,9 @@ public class AlertServiceImpl implements AlertService {
                 );
     }
 
+    /**
+     * The user's profile (required).
+     */
     private FinancialProfile getFinancialProfile(
             User user) {
 
@@ -523,6 +566,9 @@ public class AlertServiceImpl implements AlertService {
                 );
     }
 
+    /**
+     * Enum from the AI's type text; unknown or blank becomes REMINDER.
+     */
     private AlertType parseAlertType(String value) {
 
         if (value == null || value.isBlank()) {
@@ -539,6 +585,9 @@ public class AlertServiceImpl implements AlertService {
         }
     }
 
+    /**
+     * Enum from the AI's severity text; unknown or blank becomes MEDIUM.
+     */
     private AlertSeverity parseSeverity(String value) {
 
         if (value == null || value.isBlank()) {
@@ -555,6 +604,9 @@ public class AlertServiceImpl implements AlertService {
         }
     }
 
+    /**
+     * Trimmed text, or `fallback` when null/blank.
+     */
     private String safeText(
             String value,
             String fallback) {

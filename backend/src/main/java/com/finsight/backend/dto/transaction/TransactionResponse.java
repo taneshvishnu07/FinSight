@@ -12,6 +12,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * A transaction as returned to the frontend.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

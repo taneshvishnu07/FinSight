@@ -16,17 +16,28 @@ import com.finsight.backend.dto.subscription.SubscriptionDetectionResponse;
 import com.finsight.backend.entity.Transaction;
 import com.finsight.backend.entity.FinancialProfile;
 
+/**
+ * HTTP client for POST /api/recommendations (rule-based advice).
+ */
 @Component
 public class AiRecommendationClient {
 
     private final RestClient restClient;
 
+    /**
+     * Reads the AI service address from `finsight.ai-service.url` (default
+     * http://127.0.0.1:8000) and builds a RestClient for it.
+     */
     public AiRecommendationClient(
             RestClient.Builder restClientBuilder,
             @Value("${finsight.ai-service.url:http://127.0.0.1:8000}") String aiServiceUrl) {
         this.restClient = AiRestClientFactory.create(restClientBuilder, aiServiceUrl);
     }
 
+    /**
+     * Ask the AI service for recommendations using the transactions, profile and the
+     * subscription / unusual-spending results.
+     */
     public RecommendationResponse generate(
             List<Transaction> transactions,
             FinancialProfile financialProfile,

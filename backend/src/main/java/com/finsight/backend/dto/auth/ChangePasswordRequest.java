@@ -5,6 +5,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Body of PATCH /api/auth/password. New password: 6-100 characters, and it must match
+ * `confirmPassword` (checked in AuthServiceImpl).
+ */
 @Getter
 @Setter
 public class ChangePasswordRequest {

@@ -26,6 +26,11 @@ import com.finsight.backend.service.TransactionClassificationService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Categorises the transactions of an upload with the Python AI classifier and saves
+ * the new categories. Runs in a read-write transaction because it updates Transaction
+ * rows.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -38,6 +43,15 @@ public class TransactionClassificationServiceImpl
     private final UploadHistoryRepository uploadHistoryRepository;
     private final AiClassificationClient aiClassificationClient;
 
+    /**
+     * Flow: validate ownership -> send the upload's transactions to the AI service ->
+     * for each returned classification find the matching transaction by id -> convert
+     * the category text to the TransactionCategory enum -> save only if it changed.
+     *
+     * Each item in the response gets `updated` = true/false. Unknown ids or categories
+     * that are not in the enum are skipped (updated = false) rather than failing the
+     * whole request.
+     */
     @Override
     public ClassificationResponse classifyUpload(Long uploadHistoryId) {
         if (uploadHistoryId == null) {
@@ -101,6 +115,8 @@ public class TransactionClassificationServiceImpl
 
             // Category is nullable in Transaction. Compare enum references directly
             // instead of dereferencing existingCategory, which keeps this null-safe.
+            // Category is nullable, so compare the enum references directly instead of
+            // calling methods on a possibly-null existing category.
             Transaction nonNullTransaction = Objects.requireNonNull(
                     transaction,
                     "Transaction must not be null."
@@ -129,6 +145,10 @@ public class TransactionClassificationServiceImpl
         return aiResponse;
     }
 
+    /**
+     * Linear search of the already-loaded list (avoids one database query per
+     * classification). Returns null if not found.
+     */
     private Transaction findTransactionById(
             List<Transaction> transactions,
             Long transactionId) {
@@ -146,6 +166,10 @@ public class TransactionClassificationServiceImpl
         return null;
     }
 
+    /**
+     * Convert the AI's category text (any case) to the enum; null when blank or not a
+     * known category.
+     */
     private TransactionCategory parseCategory(String value) {
         if (value == null || value.isBlank()) {
             return null;
@@ -160,6 +184,11 @@ public class TransactionClassificationServiceImpl
         }
     }
 
+    /**
+     * Resolve the logged-in user from the Spring SecurityContext (the JWT filter
+     * stores the email there) and load the User. Same helper is repeated in most
+     * service classes.
+     */
     private User getAuthenticatedUser() {
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
@@ -177,6 +206,9 @@ public class TransactionClassificationServiceImpl
                 ));
     }
 
+    /**
+     * The user's profile; missing profile is an error.
+     */
     private FinancialProfile getFinancialProfile(User user) {
         return financialProfileRepository.findByUser(user)
                 .orElseThrow(() -> new IllegalStateException(

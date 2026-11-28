@@ -22,6 +22,10 @@ import com.finsight.backend.service.UnusualSpendingDetectionService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Unusual spending detection for one upload. Loads the user's transactions for that
+ * upload and asks the Python AI service to flag unusually large expenses. Read-only.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -33,6 +37,11 @@ public class UnusualSpendingDetectionServiceImpl implements UnusualSpendingDetec
     private final UploadHistoryRepository uploadHistoryRepository;
     private final AiAnomalyClient aiAnomalyClient;
 
+    /**
+     * Ownership check (upload must belong to the user's profile), AI call, then the
+     * upload id and file name are added to the response so the UI can show where the
+     * result came from.
+     */
     @Override
     public AnomalyDetectionResponse detectAnomalies(Long uploadHistoryId) {
         Objects.requireNonNull(uploadHistoryId, "Upload history ID must not be null.");
@@ -55,6 +64,11 @@ public class UnusualSpendingDetectionServiceImpl implements UnusualSpendingDetec
         return response;
     }
 
+    /**
+     * Resolve the logged-in user from the Spring SecurityContext (the JWT filter
+     * stores the email there) and load the User. Same helper is repeated in most
+     * service classes.
+     */
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
@@ -64,6 +78,10 @@ public class UnusualSpendingDetectionServiceImpl implements UnusualSpendingDetec
                 .orElseThrow(() -> new IllegalStateException("Authenticated user was not found."));
     }
 
+    /**
+     * The user's profile; a missing profile is an error because uploads are stored
+     * against it.
+     */
     private FinancialProfile getFinancialProfile(User user) {
         return financialProfileRepository.findByUser(user)
                 .orElseThrow(() -> new IllegalStateException("Financial profile was not found."));

@@ -10,9 +10,22 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+/**
+ * Turns exceptions into a consistent JSON error body {status, error, message} for the
+ * whole API; the frontend shows `message` to the user. Handlers are matched most-
+ * specific first.
+ *
+ * Mapping: validation failures and IllegalArgumentException -> 400; database
+ * constraint violations -> 409; "Financial profile not found." -> 404; any other
+ * RuntimeException -> 400 (its message is passed on, with SQL details hidden);
+ * everything else -> 500 with a generic message.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    /**
+     * Bean Validation (@Valid) failure: return the first field error message.
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidation(
             MethodArgumentNotValidException exception) {
@@ -27,18 +40,30 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, message);
     }
 
+    /**
+     * Bad input from business-rule checks (e.g. invalid CSV data).
+     */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalArgument(
             IllegalArgumentException exception) {
         return build(HttpStatus.BAD_REQUEST, safeMessage(exception, "Invalid request."));
     }
 
+    /**
+     * Unique/foreign-key violations: generic conflict message (database details are
+     * not exposed).
+     */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, Object>> handleDataIntegrity(
             DataIntegrityViolationException exception) {
         return build(HttpStatus.CONFLICT, "This operation conflicts with existing FinSight data. Please refresh and try again.");
     }
 
+    /**
+     * Services throw plain RuntimeExceptions for "not found" style problems; they
+     * surface as 400, except a missing profile which is 404 so the UI can redirect to
+     * profile setup.
+     */
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> handleRuntime(
             RuntimeException exception) {
@@ -49,12 +74,18 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, message);
     }
 
+    /**
+     * Last-resort handler; hides internal details.
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleException(
             Exception exception) {
         return build(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected server error occurred. Please try again.");
     }
 
+    /**
+     * Create the standard error response body.
+     */
     private ResponseEntity<Map<String, Object>> build(
             HttpStatus status, String message) {
 
@@ -65,11 +96,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(body);
     }
 
+    /**
+     * Exception message, or `fallback` if empty.
+     */
     private String safeMessage(Exception exception, String fallback) {
         String message = exception.getMessage();
         return message == null || message.isBlank() ? fallback : message;
     }
 
+    /**
+     * Hide raw SQL / constraint error text from users; other messages pass through
+     * unchanged.
+     */
     private String userSafeRuntimeMessage(RuntimeException exception) {
         String message = exception.getMessage();
         if (message == null || message.isBlank()) {

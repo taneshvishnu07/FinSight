@@ -1,3 +1,15 @@
+"""Recurring subscription detection (AI service).
+
+Finds monthly subscription payments (Netflix, Spotify, gym memberships, ...) in a
+list of transactions and estimates their monthly/yearly cost. Exposed via POST
+/api/subscriptions.
+
+The detector is deliberately conservative: a payment must be BOTH recurring monthly
+AND show evidence of being a subscription (known merchant, SUBSCRIPTION category or
+subscription wording). Recurring everyday spending such as fuel or groceries is not
+reported.
+"""
+
 from __future__ import annotations
 
 from typing import Any
@@ -16,6 +28,9 @@ class SubscriptionDetector:
     subscriptions.
     """
 
+    # Detection thresholds: at least 3 payments to the same merchant; no gap longer
+    # than 120 days; the average gap must be 25-35 days (monthly); and the final
+    # confidence score must reach 0.70.
     MIN_OCCURRENCES = 3
     MAX_INTERVAL_DAYS = 120
     MONTHLY_MIN_DAYS = 25.0
@@ -25,6 +40,8 @@ class SubscriptionDetector:
     # Known merchants are explicit subscription/service providers. This list
     # intentionally does not contain everyday spending merchants such as fuel,
     # supermarkets, restaurants, transport, utilities or pharmacies.
+    # Merchant names (upper case) that are treated as subscriptions. Compared against
+    # the WHOLE transaction description, so it must match exactly.
     KNOWN = {
         "NETFLIX",
         "SPOTIFY",
@@ -54,6 +71,9 @@ class SubscriptionDetector:
 
     # Categories that are normally recurring household/lifestyle expenses but
     # are not subscriptions by themselves.
+    # Everyday-spending categories that are normally recurring but not subscriptions.
+    # (Currently only used in a check that cannot change the outcome - see the NOTE in
+    # detect().)
     EXCLUDED_CATEGORIES = {
         "FUEL",
         "GAS",
@@ -72,6 +92,8 @@ class SubscriptionDetector:
         "BILLS",
     }
 
+    # Wording that signals a subscription when it appears anywhere in the description
+    # (e.g. "PREMIUM", "MONTHLY PLAN").
     SUBSCRIPTION_KEYWORDS = {
         "SUBSCRIPTION",
         "MEMBERSHIP",
@@ -84,10 +106,25 @@ class SubscriptionDetector:
     }
 
     def detect(self, transactions: list[dict[str, Any]]) -> dict[str, Any]:
+        """Detect monthly subscriptions in transaction dicts (keys used: amount,
+        type, transactionDate, description, optional category).
+
+        Per merchant the checks are: enough occurrences -> subscription evidence
+        -> regular monthly intervals -> confidence score >= MIN_CONFIDENCE.
+
+        Confidence = 45% interval regularity + 30% amount stability + 10% base,
+        plus bonuses for a known merchant (+15%), SUBSCRIPTION category (+10%) and
+        subscription keywords (+5%), capped at 1.0.
+
+        Returns subscriptions sorted by monthly cost, plus total monthly/yearly
+        cost. Consumed by the Java AiSubscriptionClient.
+        """
         dataframe = pd.DataFrame(transactions)
         if dataframe.empty:
             return self._empty()
 
+        # "description" is needed because merchants are identified by their
+        # description text.
         required = {"amount", "type", "transactionDate", "description"}
         if not required.issubset(dataframe.columns):
             return self._empty(
@@ -118,6 +155,7 @@ class SubscriptionDetector:
             dataframe["transactionDate"], errors="coerce"
         )
 
+        # Only valid EXPENSE rows with a usable date are considered.
         expenses = dataframe[
             (dataframe["type"] == "EXPENSE")
             & dataframe["amount"].notna()
@@ -128,6 +166,8 @@ class SubscriptionDetector:
 
         detected: list[dict[str, Any]] = []
 
+        # Group payments by merchant (description, upper-cased) and examine each group
+        # separately.
         for merchant, group in expenses.groupby(
             expenses["description"].str.upper().str.strip()
         ):
@@ -142,21 +182,28 @@ class SubscriptionDetector:
                 if str(value).strip()
             }
 
+            # Evidence flags: any one of them qualifies a merchant as a subscription
+            # candidate.
             known_merchant = merchant in self.KNOWN
             keyword_match = self._contains_subscription_keyword(merchant)
             explicit_subscription_category = "SUBSCRIPTION" in category_values
             excluded_category = bool(category_values & self.EXCLUDED_CATEGORIES)
 
+            # Gate 1: skip merchants with no subscription evidence at all.
             # Everyday spending is never promoted to a subscription merely
             # because it happens monthly. A known merchant, explicit
             # subscription category, or clear subscription wording is required.
             if not (known_merchant or explicit_subscription_category or keyword_match):
                 continue
+            # NOTE: redundant - merchants without evidence were already skipped by the
+            # check above, so this condition can never be true. Kept as-is; remove or
+            # tighten it if the exclusion rules are ever meant to override evidence.
             if excluded_category and not (
                 known_merchant or explicit_subscription_category or keyword_match
             ):
                 continue
 
+            # Days between consecutive payments for this merchant.
             dates = group["transactionDate"].dt.date.tolist()
             intervals = [
                 (dates[index] - dates[index - 1]).days
@@ -165,10 +212,14 @@ class SubscriptionDetector:
             if not intervals or max(intervals) > self.MAX_INTERVAL_DAYS:
                 continue
 
+            # Gate 3: payments must repeat roughly monthly.
             mean_interval = sum(intervals) / len(intervals)
             if mean_interval < self.MONTHLY_MIN_DAYS or mean_interval > self.MONTHLY_MAX_DAYS:
                 continue
 
+            # Consistency scores in the range 0-1 (1 = perfectly regular dates /
+            # identical amounts). They use the standard deviation relative to the
+            # mean.
             interval_series = pd.Series(intervals, dtype=float)
             interval_std = float(interval_series.std(ddof=0) or 0.0)
             interval_consistency = 1.0 - min(
@@ -184,6 +235,7 @@ class SubscriptionDetector:
 
             # Evidence is weighted toward recurrence and stable amount. Explicit
             # subscription evidence is rewarded, but recurrence still matters.
+            # Weighted evidence score - see the detect() docstring for the weights.
             confidence = (
                 0.45 * interval_consistency
                 + 0.30 * amount_consistency
@@ -197,6 +249,7 @@ class SubscriptionDetector:
             if confidence < self.MIN_CONFIDENCE:
                 continue
 
+            # Monthly cost is the average payment; yearly cost assumes 12 payments.
             monthly = amount_mean
             yearly = monthly * 12.0
             detected.append(
@@ -227,9 +280,11 @@ class SubscriptionDetector:
         }
 
     def _contains_subscription_keyword(self, merchant: str) -> bool:
+        """True if any subscription keyword appears in the merchant name."""
         return any(keyword in merchant for keyword in self.SUBSCRIPTION_KEYWORDS)
 
     def _message(self, count: int) -> str:
+        """Summary sentence shown to the user."""
         if count == 0:
             return "No recurring monthly subscriptions were detected."
         return f"Detected {count} recurring monthly subscription{'s' if count != 1 else ''}."
@@ -238,6 +293,9 @@ class SubscriptionDetector:
         self,
         message: str = "No recurring monthly subscriptions were detected.",
     ) -> dict[str, Any]:
+        """Response used when no subscriptions were found or required fields were
+        missing.
+        """
         return {
             "status": "SUCCESS",
             "message": message,
@@ -248,4 +306,5 @@ class SubscriptionDetector:
         }
 
 
+# Shared instance imported by app/main.py.
 subscription_detector = SubscriptionDetector()

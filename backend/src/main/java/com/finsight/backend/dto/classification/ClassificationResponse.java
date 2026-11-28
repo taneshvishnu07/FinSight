@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Result of classifying an upload (mirrors the Python /api/classification JSON).
+ */
 @Getter
 @Setter
 @NoArgsConstructor

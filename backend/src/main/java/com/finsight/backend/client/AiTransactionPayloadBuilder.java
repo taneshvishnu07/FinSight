@@ -9,11 +9,20 @@ import java.util.Map;
 
 import com.finsight.backend.entity.Transaction;
 
+/**
+ * Converts Transaction entities into the JSON list the AI service expects (id,
+ * transactionDate, description, amount, type, category, paymentMethod). Utility class
+ * - static methods only.
+ */
 public final class AiTransactionPayloadBuilder {
 
     private AiTransactionPayloadBuilder() {
     }
 
+    /**
+     * Null-safe conversion: null transactions are skipped, missing category becomes
+     * "OTHER", other missing values become empty / zero. Dates are sent in ISO format.
+     */
     public static List<Map<String, Object>> build(List<Transaction> transactions) {
         List<Map<String, Object>> payload = new ArrayList<>();
         if (transactions == null) {

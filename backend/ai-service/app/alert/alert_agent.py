@@ -1,3 +1,14 @@
+"""Rule-based alert agent (AI service).
+
+Produces warnings (budget exceeded, low savings, unusual purchase, subscriptions
+adding up, ...) from the user's transactions, financial profile and earlier analysis
+results. Like the recommendation agent it uses simple thresholds, not an ML model.
+Exposed via POST /api/alerts.
+
+Alert vs recommendation: alerts describe what is going wrong now (with a severity),
+recommendations suggest what to do about it.
+"""
+
 from __future__ import annotations
 
 from typing import Any
@@ -6,6 +17,7 @@ from typing import Any
 class AlertAgent:
     """Rule-based financial alert agent with natural wording."""
 
+    # Tag copied onto every alert so the source of each alert is traceable.
     generated_by = "PYTHON_RULE_BASED_ALERT_AGENT"
 
     def generate(
@@ -15,15 +27,31 @@ class AlertAgent:
         anomaly_analysis: dict[str, Any] | None,
         financial_profile: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
+        """Build the alert list.
+
+        Inputs are the same as RecommendationAgent.generate(): transactions,
+        subscription analysis, anomaly analysis and the financial profile (all
+        optional).
+
+        Checks: monthly budget exceeded -> savings pace vs goal -> student
+        allowance -> employee income vs salary -> expense ratio -> savings ratio
+        -> one alert per unusual transaction -> subscription cost.
+
+        Severity levels: LOW, MEDIUM, HIGH, CRITICAL. Returns the envelope
+        consumed by the Java AiAlertClient (all alerts start unread).
+        """
         transactions = transactions or []
         subscription_analysis = subscription_analysis or {}
         anomaly_analysis = anomaly_analysis or {}
         financial_profile = financial_profile or {}
 
+        # Period totals (absolute values, so sign conventions do not matter).
         income = sum(abs(self._amount(t)) for t in transactions if self._type(t) == "INCOME")
         expense = sum(abs(self._amount(t)) for t in transactions if self._type(t) == "EXPENSE")
         alerts: list[dict[str, Any]] = []
 
+        # Profile values and per-month averages; the savings goal defaults to 6
+        # months.
         goal_months = max(int(self._number(financial_profile.get("financialGoalMonths"))) or 6, 1)
         occupation_type = self._text(financial_profile.get("occupationType"), "").upper()
         monthly_budget_map = self._monthly_budget_map(financial_profile)
@@ -33,6 +61,8 @@ class AlertAgent:
         monthly_expense = expense / period_months if period_months > 0 else expense
         monthly_savings = (income - expense) / period_months if period_months > 0 else (income - expense)
 
+        # Budget check per month: HIGH when over budget by 20% or more, otherwise
+        # MEDIUM.
         monthly_expenses = self._monthly_expense_stats(transactions)
         for month, month_expense in monthly_expenses.items():
             budget = monthly_budget_map.get(month)
@@ -46,6 +76,8 @@ class AlertAgent:
                     f"In {month}, your expenses were about RM{month_expense:.2f}, which is RM{over:.2f} above your RM{budget:.2f} budget.",
                 ))
 
+        # Savings-goal check: warn if projected savings over the goal period are under
+        # 10% of what the average monthly budget would be across the same period.
         configured_budgets = [value for month, value in monthly_budget_map.items() if value > 0]
         average_configured_budget = (sum(configured_budgets) / len(configured_budgets)) if configured_budgets else 0
         if goal_months > 0 and monthly_savings > 0 and average_configured_budget > 0:
@@ -57,6 +89,7 @@ class AlertAgent:
                     f"At about RM{monthly_savings:.2f} saved per month, you would accumulate roughly RM{projected:.2f} over your {goal_months}-month goal period. Your configured monthly budgets average about RM{average_configured_budget:.2f}; reducing discretionary spending could improve your savings pace.",
                 ))
 
+        # Students: average spending above the monthly allowance.
         if occupation_type == "STUDENT" and monthly_allowance > 0 and monthly_expense > monthly_allowance:
             over = monthly_expense - monthly_allowance
             alerts.append(self._item(
@@ -64,6 +97,8 @@ class AlertAgent:
                 f"Your average monthly spending is about RM{monthly_expense:.2f}, exceeding your RM{monthly_allowance:.2f} allowance by RM{over:.2f}. Review discretionary spending first.",
             ))
 
+        # Employees: recorded income is more than 20% below the profile salary (income
+        # transactions are probably missing).
         if occupation_type == "EMPLOYEE" and monthly_salary > 0 and income > 0:
             recorded_monthly_income = income / period_months
             if recorded_monthly_income < monthly_salary * 0.80:
@@ -72,6 +107,7 @@ class AlertAgent:
                     f"Your uploaded transactions show about RM{recorded_monthly_income:.2f} average monthly income, compared with your RM{monthly_salary:.2f} profile salary. Check whether income transactions are missing from the upload.",
                 ))
 
+        # Ratios only make sense when there is income to compare against.
         if income > 0:
             expense_ratio = expense / income
             if expense_ratio >= 0.70:
@@ -85,6 +121,8 @@ class AlertAgent:
                     f"You are using about {expense_ratio * 100:.1f}% of your income for expenses. A little less discretionary spending could help you save more.",
                 ))
 
+            # Savings rate: <= 0 is CRITICAL (spent everything or more), under 10% is
+            # HIGH.
             savings_ratio = (income - expense) / income
             if savings_ratio <= 0:
                 alerts.append(self._item(
@@ -97,6 +135,8 @@ class AlertAgent:
                     f"Only about {savings_ratio * 100:.1f}% of your income remained after expenses. Consider setting aside a little more by reducing optional spending.",
                 ))
 
+        # One alert for every unusual transaction found by the anomaly detector;
+        # unknown severities are treated as MEDIUM.
         anomalies = anomaly_analysis.get("anomalies") or []
         for anomaly in anomalies:
             merchant = self._text(anomaly.get("merchant"), "Unknown merchant")
@@ -113,6 +153,8 @@ class AlertAgent:
                 f"We noticed {merchant} for RM{amount:.2f}. {reason}",
             ))
 
+        # Subscription alert: severity depends on subscription cost relative to income
+        # (>=20% HIGH, >=10% MEDIUM, else LOW).
         monthly = self._number(subscription_analysis.get("estimatedMonthlySubscriptionCost"))
         count = int(self._number(subscription_analysis.get("subscriptionCount")))
         if count > 0 and monthly > 0:
@@ -125,6 +167,7 @@ class AlertAgent:
                 f"You have {count} recurring subscription(s) costing about RM{monthly:.2f} each month. Check whether you still use all of them.",
             ))
 
+        # Summary sentence for the UI.
         summary = (
             f"I found {len(alerts)} alert(s) worth reviewing."
             if alerts else
@@ -140,6 +183,9 @@ class AlertAgent:
         }
 
     def _item(self, alert_type: str, severity: str, title: str, message: str) -> dict[str, Any]:
+        """Build one alert dict in the shape the backend expects (`id` is assigned
+        later by the Java side; isRead starts False).
+        """
         return {
             "id": None,
             "type": alert_type,
@@ -152,6 +198,10 @@ class AlertAgent:
 
     @staticmethod
     def _monthly_budget_map(financial_profile: dict[str, Any]) -> dict[str, float]:
+        """Convert the profile's `monthlyBudgets` list into {"YYYY-MM":
+        budget_amount}. Rows that are not dicts, have no month, or have a non-
+        numeric amount are skipped.
+        """
         rows = financial_profile.get("monthlyBudgets") or []
         result: dict[str, float] = {}
         if isinstance(rows, list):
@@ -169,6 +219,9 @@ class AlertAgent:
 
     @staticmethod
     def _monthly_expense_stats(transactions: list[dict[str, Any]]) -> dict[str, float]:
+        """Total EXPENSE amount per month, keyed "YYYY-MM" (the first 7 characters of
+        transactionDate).
+        """
         result: dict[str, float] = {}
         for transaction in transactions:
             if str(transaction.get("type") or "").upper() != "EXPENSE":
@@ -181,11 +234,15 @@ class AlertAgent:
 
     @staticmethod
     def _analysis_months(transactions: list[dict[str, Any]]) -> int:
+        """Number of distinct calendar months present in the data (minimum 1). Used
+        to turn period totals into monthly averages.
+        """
         dates = {str(t.get("transactionDate"))[:7] for t in transactions if t.get("transactionDate")}
         return max(len(dates), 1)
 
     @staticmethod
     def _amount(transaction: dict[str, Any]) -> float:
+        """Safe float read of transaction["amount"]; 0.0 if missing or not numeric."""
         try:
             return float(transaction.get("amount") or 0)
         except (TypeError, ValueError):
@@ -193,6 +250,7 @@ class AlertAgent:
 
     @staticmethod
     def _number(value: Any) -> float:
+        """Safe float conversion for any value; 0.0 if None or not numeric."""
         try:
             return float(value or 0)
         except (TypeError, ValueError):
@@ -200,16 +258,24 @@ class AlertAgent:
 
     @staticmethod
     def _type(transaction: dict[str, Any]) -> str:
+        """Transaction type normalised to upper case (INCOME / EXPENSE), "" if
+        missing.
+        """
         return str(transaction.get("type") or "").upper().strip()
 
     @staticmethod
     def _category(transaction: dict[str, Any]) -> str:
+        """Transaction category normalised to upper case (currently unused by the
+        rules above).
+        """
         return str(transaction.get("category") or "").upper().strip()
 
     @staticmethod
     def _text(value: Any, fallback: str) -> str:
+        """Trimmed string of `value`, or `fallback` when it is empty."""
         text = str(value or "").strip()
         return text if text else fallback
 
 
+# Shared instance imported by app/main.py.
 alert_agent = AlertAgent()

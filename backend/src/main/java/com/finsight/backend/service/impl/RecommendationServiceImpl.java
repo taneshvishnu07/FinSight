@@ -39,6 +39,15 @@ import com.finsight.backend.service.UnusualSpendingDetectionService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Generates and stores personalised recommendations for an upload.
+ *
+ * The advice itself is produced by the Python AI service (rule-based
+ * RecommendationAgent). This class prepares the input (transactions, profile,
+ * subscription and unusual-spending results), saves the returned items as
+ * Recommendation rows linked to the upload's FinancialAnalysis, and updates that
+ * analysis with the totals and counts.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -59,6 +68,11 @@ public class RecommendationServiceImpl
     private final UnusualSpendingDetectionService unusualSpendingDetectionService;
     private final AiRecommendationClient aiRecommendationClient;
 
+    /**
+     * Read the saved recommendations: finds the upload's most recent analysis job that
+     * has a FinancialAnalysis and returns its stored recommendations plus the totals.
+     * Fails with "No completed financial analysis" if the analysis has not been run.
+     */
     @Override
     @Transactional(readOnly = true)
     public RecommendationResponse getRecommendations(
@@ -147,6 +161,18 @@ public class RecommendationServiceImpl
         return response;
     }
 
+    /**
+     * (Re)generate recommendations for the upload.
+     *
+     * Flow: ownership check -> load transactions -> run subscription and unusual-
+     * spending detection -> call the AI recommendation service -> find (or create) the
+     * upload's FinancialAnalysis -> delete the old recommendations and save the new
+     * ones -> update the analysis totals, counts and summary -> return the response
+     * with database-backed items.
+     *
+     * Deleting before saving makes the call idempotent: running it twice does not
+     * duplicate recommendations.
+     */
     @Override
     public RecommendationResponse generateRecommendations(
             Long uploadHistoryId) {
@@ -355,6 +381,9 @@ public class RecommendationServiceImpl
         return aiResponse;
     }
 
+    /**
+     * Null-checked save of one recommendation.
+     */
     private void saveRecommendation(Recommendation recommendation) {
         Recommendation nonNullRecommendation = Objects.requireNonNull(
                 recommendation,
@@ -363,6 +392,12 @@ public class RecommendationServiceImpl
         recommendationRepository.save(nonNullRecommendation);
     }
 
+    /**
+     * Find the FinancialAnalysis that belongs to the upload's latest analysis job and
+     * refresh its totals; if there is none yet, create one and link it to the job. An
+     * analysis job must already exist (created by TransactionAnalysisServiceImpl),
+     * otherwise an IllegalStateException is thrown.
+     */
     private FinancialAnalysis getOrCreateFinancialAnalysisForUpload(
             UploadHistory uploadHistory,
             FinancialProfile financialProfile,
@@ -480,6 +515,11 @@ public class RecommendationServiceImpl
         );
     }
 
+    /**
+     * AI response item -> database entity. The AI "message" becomes `description` and
+     * its "relatedAmount" is stored as `expectedSavings`. Missing text gets a default;
+     * accepted/dismissed start false.
+     */
     private Recommendation convertToEntity(
             RecommendationItemResponse item,
             FinancialAnalysis financialAnalysis) {
@@ -549,6 +589,9 @@ public class RecommendationServiceImpl
         return entity;
     }
 
+    /**
+     * Database entity -> API item (including its saved id).
+     */
     private RecommendationItemResponse convertToResponse(
             Recommendation entity) {
 
@@ -607,6 +650,9 @@ public class RecommendationServiceImpl
         return response;
     }
 
+    /**
+     * Enum from the AI's type text; unknown or blank becomes OTHER.
+     */
     private RecommendationType parseRecommendationType(
             String value) {
 
@@ -624,6 +670,9 @@ public class RecommendationServiceImpl
         }
     }
 
+    /**
+     * Enum from the AI's priority text; unknown or blank becomes LOW.
+     */
     private RecommendationPriority parseRecommendationPriority(
             String value) {
 
@@ -641,6 +690,9 @@ public class RecommendationServiceImpl
         }
     }
 
+    /**
+     * Resolve the logged-in user from the SecurityContext.
+     */
     private User getAuthenticatedUser() {
 
         Authentication authentication =
@@ -669,6 +721,9 @@ public class RecommendationServiceImpl
                 );
     }
 
+    /**
+     * The user's profile (required).
+     */
     private FinancialProfile getFinancialProfile(
             User user) {
 
@@ -681,6 +736,9 @@ public class RecommendationServiceImpl
                 );
     }
 
+    /**
+     * Null-safe amount: null becomes zero.
+     */
     private BigDecimal safeAmount(
             BigDecimal value) {
 
@@ -697,6 +755,9 @@ public class RecommendationServiceImpl
         );
     }
 
+    /**
+     * Trimmed text, or `fallback` when null/blank.
+     */
     private String safeText(
             String value,
             String fallback) {

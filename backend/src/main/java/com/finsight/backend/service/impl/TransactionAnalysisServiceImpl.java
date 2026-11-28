@@ -33,6 +33,20 @@ import com.finsight.backend.service.TransactionAnalysisService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Step 1 of the analysis pipeline: calculates the basic financial summary of an
+ * uploaded file and stores it.
+ *
+ * For one upload it computes total income / expense / savings, average and largest
+ * expense, spending per category, the date range, and a plain-language summary text.
+ * The result is saved as a FinancialAnalysis (linked to an AnalysisJob that tracks
+ * PROCESSING -> COMPLETED), which the later steps (recommendations, alerts, insights)
+ * attach their output to.
+ *
+ * The AI service is NOT called here. The subscription and unusual-transaction numbers
+ * are simple counts that are normally replaced by the richer AI results in later
+ * pipeline steps (see FinancialAnalysisOrchestratorServiceImpl).
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -56,6 +70,17 @@ public class TransactionAnalysisServiceImpl
      * ============================================================
      * RUN TRANSACTION ANALYSIS
      * ============================================================
+     */
+    /**
+     * Run and store the analysis for one upload.
+     *
+     * Order matters: the FinancialAnalysis is saved (saveAndFlush) in PROCESSING state
+     * BEFORE anything else uses it, because the recommendation and alert services look
+     * it up through the AnalysisJob and would otherwise create a duplicate record.
+     *
+     * Amounts are taken as absolute values; the transaction type decides whether they
+     * count as income or expense. The "largest expense" ignores essential expenses
+     * (rent, bills, ...) so it highlights discretionary spending.
      */
     @Override
     public TransactionAnalysisResponse analyseUpload(
@@ -613,6 +638,10 @@ public class TransactionAnalysisServiceImpl
      * GET ANALYSIS BY ID
      * ============================================================
      */
+    /**
+     * Read a stored analysis by id and rebuild the response from the saved data. The
+     * analysis must belong to the logged-in user's profile.
+     */
     @Override
     @Transactional(readOnly = true)
     public TransactionAnalysisResponse getAnalysisById(
@@ -718,6 +747,9 @@ public class TransactionAnalysisServiceImpl
      * GET LATEST ANALYSIS
      * ============================================================
      */
+    /**
+     * The most recent COMPLETED analysis of the logged-in user.
+     */
     @Override
     @Transactional(readOnly = true)
     public TransactionAnalysisResponse getLatestAnalysis() {
@@ -789,6 +821,11 @@ public class TransactionAnalysisServiceImpl
      * COUNT SUBSCRIPTION TRANSACTIONS
      * ============================================================
      */
+    /**
+     * Basic count of EXPENSE transactions whose category is SUBSCRIPTION. This counts
+     * transactions, not distinct subscriptions; the AI subscription detector gives the
+     * accurate figure.
+     */
     private int countSubscriptionTransactions(
             List<Transaction> transactions) {
 
@@ -828,6 +865,11 @@ public class TransactionAnalysisServiceImpl
      * ============================================================
      * COUNT BASIC UNUSUAL TRANSACTIONS
      * ============================================================
+     */
+    /**
+     * Basic count of non-essential expenses larger than 2.5x the average expense. (The
+     * AI service uses an Isolation Forest plus a 2x-average rule, so its count can
+     * differ.)
      */
     private int countUnusualTransactions(
             List<Transaction> transactions,
@@ -900,6 +942,12 @@ public class TransactionAnalysisServiceImpl
     }
 
 
+    /**
+     * True for expenses in categories treated as planned living costs: housing,
+     * utilities, groceries, transportation, healthcare, education, financial. These
+     * are excluded from "largest" and "unusual" checks. Keep in sync with
+     * essential_categories in unusual_spending_detector.py.
+     */
     private boolean isEssentialExpense(Transaction transaction) {
         if (transaction == null || transaction.getType() != TransactionType.EXPENSE) {
             return false;
@@ -917,6 +965,11 @@ public class TransactionAnalysisServiceImpl
      * ============================================================
      * GENERATE SUMMARY
      * ============================================================
+     */
+    /**
+     * Build the human-readable summary paragraph: totals and savings, average expense,
+     * how the period compares with configured monthly budgets, the projected savings
+     * over the user's goal period, and the largest expense.
      */
     private String generateSummary(
             BigDecimal totalIncome,
@@ -1080,6 +1133,9 @@ public class TransactionAnalysisServiceImpl
      * FORMAT AMOUNT
      * ============================================================
      */
+    /**
+     * Format a BigDecimal as a money string for the summary text (null-safe).
+     */
     private String formatAmount(
             BigDecimal amount) {
 
@@ -1101,6 +1157,12 @@ public class TransactionAnalysisServiceImpl
      * ============================================================
      * REBUILD RESPONSE
      * ============================================================
+     */
+    /**
+     * Recreate the API response for an already-stored analysis: totals and counts come
+     * from the saved FinancialAnalysis, the remaining figures (average, largest
+     * expense, category spending, date range) are recomputed from the upload's
+     * transactions.
      */
     private TransactionAnalysisResponse rebuildResponse(
             FinancialAnalysis analysis,
@@ -1284,6 +1346,9 @@ public class TransactionAnalysisServiceImpl
      * BUILD RESPONSE
      * ============================================================
      */
+    /**
+     * Assemble the API response object from the calculated values.
+     */
     private TransactionAnalysisResponse buildResponse(
             FinancialAnalysis analysis,
             AnalysisJob analysisJob,
@@ -1424,6 +1489,9 @@ public class TransactionAnalysisServiceImpl
      * GET AUTHENTICATED USER
      * ============================================================
      */
+    /**
+     * Resolve the logged-in user from the SecurityContext.
+     */
     private User getAuthenticatedUser() {
 
         Authentication authentication =
@@ -1463,6 +1531,9 @@ public class TransactionAnalysisServiceImpl
      * ============================================================
      * GET FINANCIAL PROFILE
      * ============================================================
+     */
+    /**
+     * The user's profile (required for all analysis).
      */
     private FinancialProfile getFinancialProfile(
             User user) {

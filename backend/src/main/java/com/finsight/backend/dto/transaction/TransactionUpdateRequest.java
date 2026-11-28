@@ -12,6 +12,10 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * Body for updating a transaction. All fields are optional; only the ones sent are
+ * changed.
+ */
 @Getter
 @Setter
 public class TransactionUpdateRequest {

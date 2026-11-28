@@ -20,6 +20,14 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * One income or expense record (table `transactions`). Created manually through the
+ * API or imported from an uploaded CSV/Excel file. Always belongs to a User and a
+ * FinancialProfile; `uploadHistory` is only set for imported rows.
+ *
+ * Amounts are stored as positive BigDecimal values (RM, 2 decimals); `type`
+ * (INCOME/EXPENSE) says which direction the money moved.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -64,6 +72,7 @@ public class Transaction extends BaseEntity {
             name = "upload_history_id",
             nullable = true
     )
+    // Optional link: null for manually entered transactions.
     private UploadHistory uploadHistory;
 
 
@@ -116,6 +125,7 @@ public class Transaction extends BaseEntity {
     @Column(
             length = 50
     )
+    // Nullable: may be empty until the AI classification step fills it in.
     private TransactionCategory category;
 
 

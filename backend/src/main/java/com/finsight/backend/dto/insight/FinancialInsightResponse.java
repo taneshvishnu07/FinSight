@@ -7,6 +7,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Financial health score (0-100), status, savings rate and lists of insights, positive
+ * behaviours, risks and priority actions.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

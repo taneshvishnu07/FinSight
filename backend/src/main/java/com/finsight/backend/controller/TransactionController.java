@@ -21,6 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ * CRUD for the logged-in user's transactions, mounted under /api/transactions. Every
+ * operation is limited to the current user's own records (enforced in
+ * TransactionService).
+ */
 @RestController
 @RequestMapping("/api/transactions")
 @RequiredArgsConstructor

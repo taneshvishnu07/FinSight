@@ -16,17 +16,28 @@ import org.springframework.web.client.RestClient;
 import com.finsight.backend.dto.behaviour.BehaviourAnalysisResponse;
 import com.finsight.backend.entity.Transaction;
 
+/**
+ * HTTP client for POST /api/behaviour-analysis (spending totals, category breakdown
+ * and K-Means clusters).
+ */
 @Component
 public class AiBehaviourClient {
 
     private final RestClient restClient;
 
+    /**
+     * Reads the AI service address from `finsight.ai-service.url` (default
+     * http://127.0.0.1:8000) and builds a RestClient for it.
+     */
     public AiBehaviourClient(
             RestClient.Builder restClientBuilder,
             @Value("${finsight.ai-service.url:http://127.0.0.1:8000}") String aiServiceUrl) {
         this.restClient = AiRestClientFactory.create(restClientBuilder, aiServiceUrl);
     }
 
+    /**
+     * Send the transactions and return the behaviour analysis.
+     */
     public BehaviourAnalysisResponse analyse(List<Transaction> transactions) {
         Map<String, Object> request = new LinkedHashMap<>();
         request.put("transactions", buildTransactionPayload(transactions));
@@ -46,6 +57,11 @@ public class AiBehaviourClient {
         return response;
     }
 
+    /**
+     * Convert Transaction entities to the JSON shape the AI service expects (null-
+     * safe). NOTE: duplicates AiTransactionPayloadBuilder.build(); AiForecastClient
+     * has the same copy - they could be replaced by the shared builder.
+     */
     private List<Map<String, Object>> buildTransactionPayload(List<Transaction> transactions) {
         List<Map<String, Object>> payload = new ArrayList<>();
 

@@ -16,9 +16,19 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
+/**
+ * Creates and validates JSON Web Tokens (JWT) for stateless login.
+ *
+ * A token contains the user's email as its subject, an issued-at time and an expiry
+ * time, and is signed with HMAC-SHA using the Base64 secret `jwt.secret`. Token
+ * lifetime comes from `jwt.expiration` (milliseconds; default 86,400,000 = 24 hours).
+ * Both values are configured in application-dev.yml / application-prod.yml.
+ */
 @Service
 public class JwtService {
 
+    // Base64-encoded signing key (must decode to at least 256 bits). Keep it private
+    // and use a different value in production.
     @Value("${jwt.secret}")
     private String secret;
 
@@ -30,6 +40,9 @@ public class JwtService {
      * ============================================================
      * GENERATE JWT
      * ============================================================
+     */
+    /**
+     * Create a signed token for the given email (called after a successful login).
      */
     public String generateToken(String email) {
 
@@ -68,6 +81,10 @@ public class JwtService {
      * EXTRACT EMAIL
      * ============================================================
      */
+    /**
+     * Read the email (token subject). Throws if the signature is invalid or the token
+     * is expired/malformed.
+     */
     public String extractEmail(
             String token) {
 
@@ -88,6 +105,10 @@ public class JwtService {
      * EXTRACT CLAIM
      * ============================================================
      */
+    /**
+     * Generic helper: verify the token, then apply `claimsResolver` to read one claim
+     * from it.
+     */
     public <T> T extractClaim(
             String token,
             Function<Claims, T> claimsResolver) {
@@ -107,6 +128,10 @@ public class JwtService {
      * ============================================================
      * VALIDATE TOKEN
      * ============================================================
+     */
+    /**
+     * True only if the token verifies, belongs to `email` and has not expired. Any
+     * parsing/verification error returns false instead of throwing.
      */
     public boolean isTokenValid(
             String token,
@@ -133,6 +158,9 @@ public class JwtService {
      * CHECK EXPIRATION
      * ============================================================
      */
+    /**
+     * True if the expiry time is in the past.
+     */
     private boolean isTokenExpired(
             String token) {
 
@@ -145,6 +173,9 @@ public class JwtService {
      * ============================================================
      * EXTRACT EXPIRATION
      * ============================================================
+     */
+    /**
+     * Read the expiry date claim.
      */
     private Date extractExpiration(
             String token) {
@@ -165,6 +196,10 @@ public class JwtService {
      * ============================================================
      * EXTRACT ALL CLAIMS
      * ============================================================
+     */
+    /**
+     * Verify the signature and return the token payload; throws a JwtException if
+     * verification fails.
      */
     private Claims extractAllClaims(
             String token) {
@@ -187,6 +222,9 @@ public class JwtService {
      * ============================================================
      * GET SIGNING KEY
      * ============================================================
+     */
+    /**
+     * Decode the Base64 secret into an HMAC key.
      */
     private SecretKey getSigningKey() {
 

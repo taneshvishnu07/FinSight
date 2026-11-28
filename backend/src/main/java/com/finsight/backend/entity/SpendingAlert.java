@@ -13,6 +13,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 
+/**
+ * A saved warning produced for an analysis (table `spending_alerts`) with a type,
+ * severity, title/message and an `isRead` flag for the notification UI.
+ */
 @Entity
 @Table(name = "spending_alerts")
 public class SpendingAlert extends BaseEntity {

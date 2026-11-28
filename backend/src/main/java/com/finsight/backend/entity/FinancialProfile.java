@@ -10,6 +10,13 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The user's financial setup (table `financial_profiles`), created once after
+ * registration. Holds occupation type (student/employee/other) with the matching
+ * details entity, the savings goal period, and parents all per-user data: monthly
+ * budgets, upload history, transactions and analyses. Deleting a profile cascades to
+ * all of them.
+ */
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,9 +32,13 @@ public class FinancialProfile extends BaseEntity {
     @Column(nullable = false)
     private OccupationType occupationType;
 
+    // Savings goal horizon in months (default 6), used by the recommendation and alert
+    // rules.
     @Column(nullable = false)
     private Integer financialGoalMonths = 6;
 
+    // Only one of studentDetails / employeeDetails is normally filled, depending on
+    // occupationType.
     @OneToOne(mappedBy = "financialProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     private StudentDetails studentDetails;
 

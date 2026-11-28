@@ -10,6 +10,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Combined result of the full analysis pipeline: the basic analysis plus the
+ * subscription, unusual-spending, recommendation and alert results and an overall
+ * summary.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

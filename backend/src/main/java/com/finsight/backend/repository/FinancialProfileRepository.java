@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.finsight.backend.entity.FinancialProfile;
 import com.finsight.backend.entity.User;
 
+/**
+ * Data access for FinancialProfile. There is at most one profile per user.
+ */
 public interface FinancialProfileRepository extends JpaRepository<FinancialProfile, Long> {
 
     Optional<FinancialProfile> findByUser(User user);

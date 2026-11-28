@@ -19,15 +19,27 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Main Spring Security setup: a stateless, JWT-based API.
+ *
+ * - No server sessions and no CSRF tokens (authentication travels in the Authorization header, not a cookie).
+ * - /api/auth/** (login, register) and the static frontend files are public.
+ * - Every other request must carry a valid JWT.
+ */
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    // Filter that reads the JWT and signs the user in for the current request.
     private final JwtAuthenticationFilter jwtFilter;
 
     private final AuthenticationProvider authenticationProvider;
 
 
+    /**
+     * Defines the HTTP security rules. The JWT filter runs before Spring's
+     * username/password filter so authenticated requests are recognised first.
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http) throws Exception {

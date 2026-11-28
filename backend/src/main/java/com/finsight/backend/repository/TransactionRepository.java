@@ -9,6 +9,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Data access for Transaction. Every query includes the owning User so one user can
+ * never read or modify another user's data.
+ */
 public interface TransactionRepository
         extends JpaRepository<Transaction, Long> {
 

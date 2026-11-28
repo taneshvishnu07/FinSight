@@ -45,12 +45,30 @@ import com.finsight.backend.service.UploadService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Imports a user's transaction CSV file and exposes the upload history.
+ *
+ * Pipeline for uploadTransactions(): validate the file -> parse every row (flexible
+ * headers, dates, amounts, types) -> check there are at least 3 calendar months of
+ * data -> create an UploadHistory -> save one Transaction per row -> mark the upload
+ * COMPLETED (or FAILED if saving throws).
+ *
+ * Only CSV is accepted (UTF-8, max 10 MB). Required columns: Date, Description,
+ * Amount. Optional: Type, Category, Payment Method. Header names are matched case-
+ * insensitively with several aliases (see findColumn calls in parseCsv). The whole
+ * class is @Transactional, so a failure rolls back the saved rows.
+ *
+ * After an upload, the frontend calls /api/financial-analysis/run/{uploadId} to
+ * analyse it.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class UploadServiceImpl implements UploadService {
 
 
+// Upload size limit (10 MB). Keep in sync with spring.servlet.multipart.max-file-size
+// in application-dev.yml.
 private static final long MAX_FILE_SIZE =
         10 * 1024 * 1024;
 
@@ -67,6 +85,13 @@ private final UserRepository userRepository;
 // UPLOAD TRANSACTIONS
 // ============================================================
 
+/**
+ * Import a CSV upload for the logged-in user and return the saved upload record.
+ *
+ * The upload record is saved first (status PROCESSING) so a failure can still be
+ * recorded as FAILED with the number of rows imported so far. Amounts are stored as
+ * absolute values - the transaction type decides whether money came in or went out.
+ */
 @Override
 public UploadResponse uploadTransactions(
         MultipartFile file) {
@@ -259,6 +284,9 @@ public UploadResponse uploadTransactions(
 // GET MY UPLOADS
 // ============================================================
 
+/**
+ * All uploads of the logged-in user, newest first.
+ */
 @Override
 @Transactional(readOnly = true)
 public List<UploadResponse> getMyUploads() {
@@ -297,6 +325,9 @@ public List<UploadResponse> getMyUploads() {
 // GET ONE UPLOAD
 // ============================================================
 
+/**
+ * One upload; "not found" also covers uploads that belong to someone else.
+ */
 @Override
 @Transactional(readOnly = true)
 public UploadResponse getUploadById(
@@ -332,6 +363,9 @@ public UploadResponse getUploadById(
 // GET TRANSACTIONS FROM UPLOAD
 // ============================================================
 
+/**
+ * The transactions imported by one upload (ownership checked), newest first.
+ */
 @Override
 @Transactional(readOnly = true)
 public List<TransactionResponse>
@@ -388,6 +422,9 @@ public List<TransactionResponse>
 // VALIDATE FILE
 // ============================================================
 
+/**
+ * Reject a missing/empty file, a file over 10 MB, or one that does not end in .csv.
+ */
 private void validateFile(
         MultipartFile file) {
 
@@ -428,6 +465,17 @@ private void validateFile(
 // PARSE CSV
 // ============================================================
 
+/**
+ * Read the CSV into validated rows.
+ *
+ * 1. Header names are normalised (lower case, spaces/dashes to underscores, BOM
+ * removed) and matched against known aliases, e.g. Description may be called details /
+ * merchant / name.
+ * 2. Date, Description and Amount columns are required; Type, Category and Payment
+ * Method are optional.
+ * 3. Blank lines are skipped. Any bad row stops the import with a message that
+ * includes the CSV line number.
+ */
 private List<CsvTransactionRow> parseCsv(
         MultipartFile file)
         throws IOException {
@@ -750,6 +798,9 @@ private List<CsvTransactionRow> parseCsv(
 // CHECK WHETHER ALL CSV VALUES ARE BLANK
 // ============================================================
 
+/**
+ * True when a parsed line has no non-blank cell (e.g. a row of only commas).
+ */
 private boolean allValuesBlank(
         List<String> values) {
 
@@ -778,6 +829,9 @@ private boolean allValuesBlank(
 // VALIDATE ROWS
 // ============================================================
 
+/**
+ * The file must contain at least one transaction.
+ */
 private void validateRows(
         List<CsvTransactionRow> rows) {
 
@@ -795,6 +849,11 @@ private void validateRows(
 // REQUIRE MINIMUM 3 MONTHS
 // ============================================================
 
+/**
+ * Business rule: the data must span at least 3 calendar months (needed for forecasting
+ * and subscription detection). Checks both the number of distinct months and that the
+ * first and last month are at least 2 months apart.
+ */
 private void validateMinimumThreeMonths(
         List<CsvTransactionRow> rows) {
 
@@ -878,6 +937,13 @@ private void validateMinimumThreeMonths(
 // PARSE DATE
 // ============================================================
 
+/**
+ * Parse a date, trying yyyy-MM-dd, dd/MM/yyyy, MM/dd/yyyy, dd-MM-yyyy, MM-dd-yyyy and
+ * yyyy/MM/dd in that order.
+ *
+ * NOTE: for ambiguous values such as 03/04/2026 the first matching pattern wins (day-
+ * first), so a month-first file will be read wrongly unless the day is above 12.
+ */
 private LocalDate parseDate(
         String value) {
 
@@ -948,6 +1014,10 @@ private LocalDate parseDate(
 // PARSE AMOUNT
 // ============================================================
 
+/**
+ * Parse an amount, ignoring thousands separators and "$" / "RM" symbols (e.g. "RM
+ * 1,250.50"). A leading minus sign is kept so the type can be inferred.
+ */
 private BigDecimal parseAmount(
         String value) {
 
@@ -991,6 +1061,14 @@ private BigDecimal parseAmount(
 // PARSE TRANSACTION TYPE
 // ============================================================
 
+/**
+ * Work out INCOME or EXPENSE. If the Type column is empty the sign of the amount is
+ * used (negative = EXPENSE, otherwise INCOME). Accepted words: income/credit/deposit
+ * and expense/debit/withdrawal; anything else is an error.
+ *
+ * NOTE: a file with no Type column and only positive amounts will be imported entirely
+ * as INCOME.
+ */
 private TransactionType parseTransactionType(
         String value,
         BigDecimal amount) {
@@ -1037,6 +1115,11 @@ private TransactionType parseTransactionType(
 // PARSE CATEGORY
 // ============================================================
 
+/**
+ * Map the text to a TransactionCategory: exact enum name first, then a few friendly
+ * aliases (e.g. "restaurant" -> FOOD, "rent" -> HOUSING), otherwise OTHER. Blank cells
+ * also become OTHER; the AI classification step can refine them later.
+ */
 private TransactionCategory parseCategory(
         String value) {
 
@@ -1146,6 +1229,10 @@ private TransactionCategory parseCategory(
 // PARSE PAYMENT METHOD
 // ============================================================
 
+/**
+ * Map the text to a PaymentMethod: exact enum name, then aliases (debit, credit, bank,
+ * ewallet, tng ...), otherwise OTHER.
+ */
 private PaymentMethod parsePaymentMethod(
         String value) {
 
@@ -1240,6 +1327,10 @@ private PaymentMethod parsePaymentMethod(
 // NORMALIZE ENUM VALUE
 // ============================================================
 
+/**
+ * Turn free text into enum style: trim, upper case, and replace "&", "-", " " and "/"
+ * so "Food & Dining" becomes FOOD_AND_DINING.
+ */
 private String normalizeEnumValue(
         String value) {
 
@@ -1262,6 +1353,10 @@ private String normalizeEnumValue(
 // NORMALIZE CSV HEADER
 // ============================================================
 
+/**
+ * Normalise a header cell for matching: remove a UTF-8 BOM, trim, lower-case, and use
+ * underscores instead of spaces and dashes.
+ */
 private String normalizeHeader(
         String header) {
 
@@ -1283,6 +1378,10 @@ private String normalizeHeader(
 // FIND COLUMN
 // ============================================================
 
+/**
+ * Index of the first header that matches any of the given names, or null if none
+ * matches.
+ */
 private Integer findColumn(
         Map<String, Integer> indexes,
         String... names) {
@@ -1311,6 +1410,10 @@ private Integer findColumn(
 // GET CSV VALUE
 // ============================================================
 
+/**
+ * Safe read of a cell: returns "" when the index is missing or the row is shorter than
+ * the header.
+ */
 private String getValue(
         List<String> values,
         Integer index) {
@@ -1340,6 +1443,10 @@ private String getValue(
 // CSV LINE PARSER
 // ============================================================
 
+/**
+ * Minimal CSV splitter that handles quoted fields, commas inside quotes and doubled
+ * quotes ("") as an escaped quote. Does not support values that span several lines.
+ */
 private List<String> parseCsvLine(
         String line) {
 
@@ -1421,6 +1528,9 @@ private List<String> parseCsvLine(
 // MAP UPLOAD RESPONSE
 // ============================================================
 
+/**
+ * UploadHistory entity -> API response.
+ */
 private UploadResponse mapUploadResponse(
         UploadHistory uploadHistory) {
 
@@ -1451,6 +1561,9 @@ private UploadResponse mapUploadResponse(
 // MAP TRANSACTION RESPONSE
 // ============================================================
 
+/**
+ * Transaction entity -> API response.
+ */
 private TransactionResponse
         mapTransactionResponse(
                 Transaction transaction) {
@@ -1490,6 +1603,9 @@ private TransactionResponse
 // GET AUTHENTICATED USER
 // ============================================================
 
+/**
+ * Resolve the logged-in user from the SecurityContext.
+ */
 private User getAuthenticatedUser() {
 
     Authentication authentication =
@@ -1529,6 +1645,9 @@ private User getAuthenticatedUser() {
 // GET FINANCIAL PROFILE
 // ============================================================
 
+/**
+ * The user's profile; uploads cannot be saved before a profile exists.
+ */
 private FinancialProfile getFinancialProfile(
         User user) {
 
@@ -1548,6 +1667,9 @@ private FinancialProfile getFinancialProfile(
 // CSV ROW RECORD
 // ============================================================
 
+/**
+ * One validated CSV row, ready to become a Transaction.
+ */
 private record CsvTransactionRow(
 
         LocalDate date,

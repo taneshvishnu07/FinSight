@@ -8,6 +8,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Detected subscriptions with their estimated monthly and yearly cost (mirrors the
+ * Python /api/subscriptions JSON).
+ */
 @Getter
 @Setter
 @NoArgsConstructor

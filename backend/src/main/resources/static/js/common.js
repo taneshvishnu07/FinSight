@@ -1,25 +1,43 @@
 /* FinSight File Notes: Provides shared frontend helpers, page shell rendering, navigation, and utility functions. */
+/**
+ * Format a number as currency text, e.g. money(1250.5) -> "RM1,250.50". Defaults to
+ * MYR.
+ */
 function money(value, currency = "MYR") {
   const symbols = { MYR: "RM", USD: "$", SGD: "S$" };
   return `${symbols[currency] || currency + " "}${Number(value || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
+/**
+ * Escape HTML special characters. ALWAYS use this when inserting server or user text
+ * into innerHTML to prevent XSS.
+ */
 function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, char => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[char]));
 }
 
+/**
+ * Show a status/error message in a form-message element (green when success is true).
+ */
 function setMessage(element, message, success = false) {
   if (!element) return;
   element.textContent = message || "";
   element.className = `form-message ${success ? "success" : ""}`;
 }
 
+/**
+ * The logged-in user object cached by the login page ({} if none).
+ */
 function currentUser() {
   try { return JSON.parse(localStorage.getItem("finsight_user") || "{}"); } catch { return {}; }
 }
 
 function saveUser(user) { localStorage.setItem("finsight_user", JSON.stringify(user || {})); }
 
+/**
+ * Clear the session and every cached analysis value from localStorage, then go to the
+ * landing page.
+ */
 function logout() {
   clearToken();
   localStorage.removeItem("finsight_user");
@@ -37,14 +55,23 @@ function logout() {
   location.href = "index.html";
 }
 
+/**
+ * Redirect to login.html when there is no token; returns whether the user is logged
+ * in.
+ */
 function requireAuth() {
   if (!getToken()) { location.href = "login.html"; return false; }
   return true;
 }
 
+/**
+ * Shorthand for document.querySelector / querySelectorAll (qsa returns a real array).
+ */
 function qs(selector) { return document.querySelector(selector); }
 function qsa(selector) { return [...document.querySelectorAll(selector)]; }
 
+// (Existing note) wheel handler registered with passive:false so preventDefault()
+// works.
 // Prevent mouse-wheel scrolling from changing numeric form values or the
 // budget-year selector. Users can still edit these fields by typing or using
 // their normal controls.
@@ -62,6 +89,11 @@ document.addEventListener("wheel", event => {
 }, { passive: false });
 
 
+/**
+ * The analysis pipeline can take a while, so a "running" flag is kept in localStorage;
+ * pages check it to avoid showing half-finished results. setAnalysisRunning()
+ * sets/clears it (and remembers the upload id).
+ */
 function isAnalysisRunning() {
   return localStorage.getItem("finsight_analysis_running") === "true";
 }
@@ -76,11 +108,17 @@ function setAnalysisRunning(running, uploadId = null) {
   }
 }
 
+/**
+ * Replace one element's content with a "still running" notice.
+ */
 function showAnalysisPending(elementId, message = "Analysis is still running. Results will appear after all analysis stages are completed.") {
   const el = qs(elementId);
   if (el) el.innerHTML = `<p class="muted">${esc(message)}</p>`;
 }
 
+/**
+ * Hide the page content and show a full-page "results not ready" notice.
+ */
 function showAnalysisPendingPage(message = "Analysis is still running. Please wait until all analysis stages are completed.") {
   const main = document.querySelector(".app-main");
   if (!main) return;
@@ -95,11 +133,18 @@ function showAnalysisPendingPage(message = "Analysis is still running. Please wa
   box.innerHTML = `<div class="panel-header"><div><span class="eyebrow">ANALYSIS IN PROGRESS</span><h2>Results are not ready yet</h2><p class="muted">${esc(message)}</p></div></div>`;
 }
 
+/**
+ * Id of the most recent upload, cached in localStorage by the upload page.
+ */
 function latestUploadIdFromStorage() {
   const id = localStorage.getItem("finsight_last_upload_id");
   return id ? Number(id) : null;
 }
 
+/**
+ * Get the latest upload id from the cache, or ask the backend for the newest upload
+ * (and cache it). Returns null if the user has not uploaded anything yet.
+ */
 async function resolveLatestUploadId() {
   const cached = latestUploadIdFromStorage();
   if (cached) return cached;
@@ -111,6 +156,9 @@ async function resolveLatestUploadId() {
   return latest.uploadId;
 }
 
+/**
+ * Date -> "05 Mar 2026" (or an em dash when empty).
+ */
 function formatDate(value) {
   if (!value) return "—";
   const date = new Date(value);
@@ -118,6 +166,9 @@ function formatDate(value) {
   return date.toLocaleDateString(undefined, { day:"2-digit", month:"short", year:"numeric" });
 }
 
+/**
+ * Date and time -> "05 Mar 2026, 14:30".
+ */
 function formatDateTime(value) {
   if (!value) return "—";
   const date = new Date(value);
@@ -125,6 +176,10 @@ function formatDateTime(value) {
   return date.toLocaleString(undefined, { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit" });
 }
 
+/**
+ * Render the shared page frame (sidebar navigation, header, logout) into #appShell.
+ * Until the profile is completed, only a "Complete Profile" link is shown.
+ */
 function renderShell(profileCompleted = true) {
   const mount = qs("#appShell");
   if (!mount) return;
@@ -149,6 +204,12 @@ function renderShell(profileCompleted = true) {
   if (!qs("#userGuideMount")) { const el=document.createElement("div"); el.id="userGuideMount"; document.body.appendChild(el); }
 }
 
+/**
+ * Route guard run on every app page: requires login, then makes sure a financial
+ * profile exists, otherwise redirects to profile.html. The result is cached for 5
+ * minutes in localStorage to avoid a request on every page change (the backend still
+ * enforces security on each API call).
+ */
 async function enforceProfileGate() {
   const page = location.pathname.split("/").pop() || "dashboard.html";
   if (!document.body.classList.contains("app-page")) return;
@@ -196,6 +257,7 @@ async function enforceProfileGate() {
   }
 }
 
+// Default Chart.js colours to match the navy theme.
 if (window.Chart) {
   Chart.defaults.color = "#0B2545";
   Chart.defaults.borderColor = "rgba(11,37,69,.22)";

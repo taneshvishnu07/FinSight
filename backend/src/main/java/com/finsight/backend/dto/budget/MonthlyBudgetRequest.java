@@ -10,6 +10,9 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 
+/**
+ * Budget for one month. `budgetMonth` must be YYYY-MM; `amount` a whole number >= 0.
+ */
 @Getter
 @Setter
 public class MonthlyBudgetRequest {

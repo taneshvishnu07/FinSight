@@ -8,6 +8,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Alerts of one upload plus counts (total / unread) and a summary. Also used as the
+ * response model for the Python /api/alerts call, so field names must match the AI
+ * service JSON.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

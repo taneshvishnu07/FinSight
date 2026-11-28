@@ -13,6 +13,10 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Common columns for every entity: auto-increment `id` plus `createdAt` / `updatedAt`
+ * timestamps that Hibernate fills automatically.
+ */
 @Getter
 @Setter
 @MappedSuperclass

@@ -13,17 +13,28 @@ import org.springframework.web.client.RestClient;
 import com.finsight.backend.dto.anomaly.AnomalyDetectionResponse;
 import com.finsight.backend.entity.Transaction;
 
+/**
+ * HTTP client for POST /api/unusual-spending (Isolation Forest based unusual spending
+ * detector).
+ */
 @Component
 public class AiAnomalyClient {
 
     private final RestClient restClient;
 
+    /**
+     * Reads the AI service address from `finsight.ai-service.url` (default
+     * http://127.0.0.1:8000) and builds a RestClient for it.
+     */
     public AiAnomalyClient(
             RestClient.Builder restClientBuilder,
             @Value("${finsight.ai-service.url:http://127.0.0.1:8000}") String aiServiceUrl) {
         this.restClient = AiRestClientFactory.create(restClientBuilder, aiServiceUrl);
     }
 
+    /**
+     * Send the transactions and return the flagged unusual expenses.
+     */
     public AnomalyDetectionResponse detect(List<Transaction> transactions) {
         Map<String, Object> request = new LinkedHashMap<>();
         request.put("transactions", AiTransactionPayloadBuilder.build(transactions));

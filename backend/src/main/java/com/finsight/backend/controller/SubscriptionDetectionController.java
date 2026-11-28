@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Recurring subscription detection, mounted under /api/subscriptions. Works on all of
+ * the logged-in user's transactions (not a single upload).
+ */
 @RestController
 @RequestMapping("/api/subscriptions")
 @RequiredArgsConstructor

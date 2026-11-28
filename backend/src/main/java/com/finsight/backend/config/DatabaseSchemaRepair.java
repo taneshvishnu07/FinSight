@@ -20,6 +20,11 @@ public class DatabaseSchemaRepair implements ApplicationRunner {
 
     private final JdbcTemplate jdbcTemplate;
 
+    /**
+     * Runs once at application start-up (after Hibernate has built the schema). Each
+     * repair is best-effort and idempotent: failures are swallowed so the app still
+     * starts.
+     */
     @Override
     public void run(ApplicationArguments args) {
         repairFinancialAnalysisProfileConstraint();
@@ -27,6 +32,11 @@ public class DatabaseSchemaRepair implements ApplicationRunner {
         repairMonthlyBudgetsTable();
     }
 
+    /**
+     * Older databases had a UNIQUE index on financial_analysis.financial_profile_id,
+     * but a profile may have many analyses (one per upload). Drop any such unique
+     * index and ensure a normal index exists.
+     */
     private void repairFinancialAnalysisProfileConstraint() {
         try {
             List<String> uniqueIndexes = jdbcTemplate.queryForList(
@@ -61,6 +71,10 @@ public class DatabaseSchemaRepair implements ApplicationRunner {
         }
     }
 
+    /**
+     * An old `monthly_budget` column may still exist on financial_profiles. Give it a
+     * default of 0 so inserts that no longer set it do not fail.
+     */
     private void repairLegacyFinancialProfileBudgetColumn() {
         try {
             Integer count = jdbcTemplate.queryForObject(
@@ -78,6 +92,12 @@ public class DatabaseSchemaRepair implements ApplicationRunner {
         }
     }
 
+    /**
+     * Make sure the monthly_budgets table, columns, a unique (profile, month) key, an
+     * index and a cascading foreign key exist. Duplicate rows (same profile and month)
+     * are removed first, keeping the newest, so the unique key can be created. See
+     * also backend/database/monthly_budgets_reconstruct.sql.
+     */
     private void repairMonthlyBudgetsTable() {
         try {
             jdbcTemplate.execute(
@@ -147,6 +167,10 @@ public class DatabaseSchemaRepair implements ApplicationRunner {
         }
     }
 
+    /**
+     * Add `column` to `table` if it is missing. Names are internal constants (never
+     * user input).
+     */
     private void ensureColumn(String table, String column, String definition) {
         Integer count = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM information_schema.COLUMNS "

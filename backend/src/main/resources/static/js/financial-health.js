@@ -1,4 +1,7 @@
 /* Shared financial-health and insight presentation for Dashboard and Financial Report. */
+// Shared renderer for the health score card and prioritised insights (used by the
+// dashboard and the report). It only DISPLAYS the score/status returned by
+// /api/insights - the score is calculated in FinancialInsightServiceImpl, never here.
 window.FinSightHealth = (() => {
   const statusMeta = status => {
     const key = String(status || '').toUpperCase();
@@ -9,6 +12,10 @@ window.FinSightHealth = (() => {
   const moneyValue = value => typeof money === 'function' ? money(value) : `RM${Number(value || 0).toFixed(2)}`;
   const safe = value => typeof esc === 'function' ? esc(value) : String(value ?? '');
 
+  /**
+   * Render the health score, status label and summary into the element with id
+   * `targetId`.
+   */
   function renderHealth(targetId, data, analysis) {
     const target = document.getElementById(targetId);
     if (!target) return;
@@ -48,6 +55,10 @@ window.FinSightHealth = (() => {
       </div>`;
   }
 
+  /**
+   * Render the prioritised insights / priority actions into the element with id
+   * `targetId`.
+   */
   function renderPriority(targetId, data, analysis) {
     const target = document.getElementById(targetId);
     if (!target) return;

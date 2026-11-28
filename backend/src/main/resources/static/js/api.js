@@ -1,14 +1,32 @@
 /* FinSight File Notes: Provides the shared frontend API helper used to call the Spring Boot backend and attach the user token. */
+/**
+ * Frontend configuration for talking to the backend. baseUrl defaults to "/api" (same
+ * origin as the Spring Boot app that serves these pages); set
+ * window.FINSIGHT_API_BASE_URL before this script to point at another host. The JWT
+ * and the user object are kept in localStorage under these keys.
+ */
 const FINSIGHT_API = {
   baseUrl: window.FINSIGHT_API_BASE_URL || "/api",
   tokenKey: "finsight_token",
   userKey: "finsight_user"
 };
 
+/**
+ * Token helpers: read, store and remove the JWT in localStorage.
+ */
 function getToken() { return localStorage.getItem(FINSIGHT_API.tokenKey); }
 function setToken(token) { localStorage.setItem(FINSIGHT_API.tokenKey, token); }
 function clearToken() { localStorage.removeItem(FINSIGHT_API.tokenKey); }
 
+/**
+ * Central fetch wrapper used by every API call.
+ *
+ * - Adds the "Authorization: Bearer <jwt>" header when logged in.
+ * - Sets JSON Content-Type unless the body is FormData (file upload).
+ * - Parses the response as JSON (falls back to {raw: text}).
+ * - 401: clears the session and redirects to login.html.
+ * - Other errors: throws an Error whose message comes from the backend's {message} body (see GlobalExceptionHandler) and whose `status` is the HTTP code.
+ */
 async function apiRequest(path, options = {}) {
   const headers = new Headers(options.headers || {});
   const token = getToken();
@@ -36,6 +54,11 @@ async function apiRequest(path, options = {}) {
   return data;
 }
 
+/**
+ * One function per backend endpoint (see the controller package). Each returns the
+ * parsed JSON. Upload-related calls take the `uploadHistoryId` returned by
+ * uploadTransactions().
+ */
 const API = {
   login: body => apiRequest("/auth/login", { method: "POST", body: JSON.stringify(body) }),
   changePassword: body => apiRequest("/auth/password", { method: "PATCH", body: JSON.stringify(body) }),

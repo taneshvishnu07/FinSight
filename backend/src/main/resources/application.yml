@@ -1,5 +1,6 @@
 spring:
   profiles:
+    # Which profile-specific file loads: application-dev.yml (default) or application-prod.yml. Railway sets SPRING_PROFILES_ACTIVE to choose.
     active: ${SPRING_PROFILES_ACTIVE:dev}
   
 finsight:

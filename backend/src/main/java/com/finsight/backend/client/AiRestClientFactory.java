@@ -20,6 +20,11 @@ public final class AiRestClientFactory {
     private AiRestClientFactory() {
     }
 
+    /**
+     * Build a RestClient for the AI service with a 5 s connect timeout and a 120 s
+     * read timeout (analysis can be slow on large uploads). The base URL is normalised
+     * by AiServiceUrlResolver.
+     */
     @NonNull
     public static RestClient create(RestClient.Builder builder, String configuredUrl) {
         RestClient.Builder safeBuilder = Objects.requireNonNull(

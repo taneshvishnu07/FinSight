@@ -22,6 +22,11 @@ import com.finsight.backend.service.ForecastService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Expense forecasting: loads the upload's transactions (checking they belong to the
+ * logged-in user) and delegates the prediction to the Python AI service. Read-only -
+ * nothing is saved.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -33,6 +38,11 @@ public class ForecastServiceImpl implements ForecastService {
     private final UploadHistoryRepository uploadHistoryRepository;
     private final AiForecastClient aiForecastClient;
 
+    /**
+     * Flow: current user -> financial profile -> upload (must belong to that profile)
+     * -> its transactions -> AI forecast for `monthsAhead` months (minimum 1). Throws
+     * IllegalArgumentException if the upload is not found or has no transactions.
+     */
     @Override
     public ForecastResponse forecast(Long uploadHistoryId, int monthsAhead) {
         Objects.requireNonNull(uploadHistoryId, "Upload history ID must not be null.");
@@ -55,6 +65,11 @@ public class ForecastServiceImpl implements ForecastService {
         return aiForecastClient.forecast(transactions, Math.max(monthsAhead, 1));
     }
 
+    /**
+     * Resolve the logged-in user from the Spring SecurityContext (the JWT filter
+     * stores the email there) and load the User. Same helper is repeated in most
+     * service classes.
+     */
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {

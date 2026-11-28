@@ -19,6 +19,12 @@ public final class AiServiceUrlResolver {
     private AiServiceUrlResolver() {
     }
 
+    /**
+     * Clean the configured URL: blank -> http://127.0.0.1:8000, trailing slashes
+     * removed, and any localhost-style address is rewritten to plain
+     * http://127.0.0.1:<port>. Non-local URLs (a deployed AI service) are returned as
+     * configured.
+     */
     @NonNull
     public static String resolve(String configuredUrl) {
         String url = configuredUrl == null ? "" : configuredUrl.trim();
@@ -47,6 +53,9 @@ public final class AiServiceUrlResolver {
         return url;
     }
 
+    /**
+     * True for localhost, 127.0.0.1, 0.0.0.0 and ::1.
+     */
     private static boolean isLoopback(String host) {
         String normalized = host.toLowerCase(Locale.ROOT);
         return normalized.equals("localhost")

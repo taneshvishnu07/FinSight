@@ -6,6 +6,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * One alert as returned to the frontend. NOTE: AlertResponse declares its own nested
+ * AlertItemResponse, which is the one the services actually use; this top-level class
+ * appears to be unused.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

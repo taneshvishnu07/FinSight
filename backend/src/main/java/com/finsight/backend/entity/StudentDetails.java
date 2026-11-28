@@ -12,6 +12,11 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 
+/**
+ * Extra profile data for students (table `student_details`): institution, course,
+ * study year, monthly allowance and scholarship flag. The allowance feeds the
+ * "spending above allowance" rules in the AI service.
+ */
 @Entity
 @Table(name = "student_details")
 public class StudentDetails extends BaseEntity {

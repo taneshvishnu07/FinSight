@@ -12,6 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Runs and reads the stored per-upload analysis summary (totals, subscription /
+ * unusual counts), mounted under /api/analysis.
+ */
 @RestController
 @RequestMapping("/api/analysis")
 @RequiredArgsConstructor
@@ -25,11 +29,11 @@ public class TransactionAnalysisController {
      * RUN ANALYSIS
      * ============================================================
      *
-     * POST /api/analysis/upload/{uploadHistoryId}
+     * POST /api/analysis/uploads/{uploadHistoryId}
      *
      * Example:
      *
-     * POST /api/analysis/upload/3
+     * POST /api/analysis/uploads/3
      *
      */
     @PostMapping("/uploads/{uploadHistoryId}")

@@ -1,3 +1,10 @@
+"""Spending behaviour analysis (AI service).
+
+Summarises a user's EXPENSE transactions: totals, the single largest expense, a per-
+category breakdown, and a K-Means grouping of expenses into low / moderate / high
+value spending clusters. Exposed via POST /api/behaviour-analysis.
+"""
+
 from __future__ import annotations
 
 from typing import Any
@@ -9,14 +16,28 @@ from sklearn.preprocessing import StandardScaler
 
 
 class BehaviourAnalyzer:
+    """Stateless analyser; use the shared `behaviour_analyzer` instance at the bottom
+    of the file.
+    """
     def __init__(self) -> None:
+        # Fixed seed so K-Means gives the same clusters for the same input
+        # (reproducible results and stable tests).
         self.random_state = 42
 
     def analyze(self, transactions: list[dict[str, Any]]) -> dict[str, Any]:
+        """Analyse a list of transaction dicts (keys used: amount, type, category,
+        optional description).
+
+        Returns a response dict with status, expense totals, category breakdown
+        and clusters. Missing required fields give status "ERROR"; no expenses
+        gives an empty SUCCESS response.
+        """
         dataframe = pd.DataFrame(transactions)
         if dataframe.empty:
             return self._empty_response()
 
+        # "amount", "type" and "category" must be present in the transaction JSON sent
+        # by the backend.
         required = {"amount", "type", "category"}
         missing = required.difference(dataframe.columns)
         if missing:
@@ -33,11 +54,15 @@ class BehaviourAnalyzer:
                 "clusters": [],
             }
 
+        # Clean the data: coerce amounts to numbers (bad values become NaN and are
+        # dropped), and normalise type/category text to trimmed upper case.
         dataframe["amount"] = pd.to_numeric(dataframe["amount"], errors="coerce")
         dataframe["type"] = dataframe["type"].fillna("").astype(str).str.upper().str.strip()
         dataframe["category"] = dataframe["category"].fillna("OTHER").astype(str).str.upper().str.strip()
         dataframe = dataframe.dropna(subset=["amount"])
 
+        # Only EXPENSE rows are analysed; amounts are made positive and zero-value
+        # rows are ignored.
         expenses = dataframe[dataframe["type"] == "EXPENSE"].copy()
         expenses["amount"] = expenses["amount"].abs()
         expenses = expenses[expenses["amount"] > 0].copy()
@@ -69,6 +94,9 @@ class BehaviourAnalyzer:
         }
 
     def _category_breakdown(self, expenses: pd.DataFrame, total: float) -> list[dict[str, Any]]:
+        """Total spend per category, highest first, with each category's share of
+        total spending as a percentage.
+        """
         grouped = expenses.groupby("category")["amount"].sum().sort_values(ascending=False)
         return [
             {
@@ -80,9 +108,17 @@ class BehaviourAnalyzer:
         ]
 
     def _clusters(self, expenses: pd.DataFrame) -> list[dict[str, Any]]:
+        """Group expenses into up to 3 clusters by amount using K-Means.
+
+        Needs at least 3 expenses. Clusters are sorted by their centre value so
+        the lowest becomes LOW_VALUE_SPENDING, the middle MODERATE_SPENDING and
+        the highest HIGH_VALUE_SPENDING.
+        """
         if len(expenses) < 3:
             return []
 
+        # One-dimensional clustering on amount only. Values are standardised so
+        # K-Means distances are scaled sensibly.
         values = expenses[["amount"]].astype(float).to_numpy()
         cluster_count = min(3, len(values))
         scaler = StandardScaler()
@@ -93,6 +129,8 @@ class BehaviourAnalyzer:
         expenses["cluster"] = labels
         centers = scaler.inverse_transform(model.cluster_centers_).flatten()
 
+        # Order cluster ids from smallest to largest centre (centres are converted
+        # back to RM with inverse_transform) so labels map to low/moderate/high.
         ordered = sorted(range(cluster_count), key=lambda index: centers[index])
         names = ["LOW_VALUE_SPENDING", "MODERATE_SPENDING", "HIGH_VALUE_SPENDING"]
         total = float(expenses["amount"].sum())
@@ -118,6 +156,7 @@ class BehaviourAnalyzer:
         return result
 
     def _empty_response(self, transaction_count: int = 0) -> dict[str, Any]:
+        """Standard "nothing to analyse" response with zeroed totals."""
         return {
             "status": "SUCCESS",
             "message": "No expense transactions were available for behaviour analysis.",
@@ -132,4 +171,5 @@ class BehaviourAnalyzer:
         }
 
 
+# Shared instance imported by app/main.py.
 behaviour_analyzer = BehaviourAnalyzer()

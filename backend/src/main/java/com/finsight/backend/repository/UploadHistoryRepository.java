@@ -8,6 +8,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.finsight.backend.entity.FinancialProfile;
 import com.finsight.backend.entity.UploadHistory;
 
+/**
+ * Data access for UploadHistory; all lookups are scoped to a FinancialProfile (the
+ * owner).
+ */
 public interface UploadHistoryRepository
         extends JpaRepository<UploadHistory, Long> {
 

@@ -22,6 +22,12 @@ import lombok.Setter;
                 @UniqueConstraint(columnNames = "email")
         }
 )
+/**
+ * Application user, stored in the `users` table (email must be unique). The password
+ * column holds a BCrypt hash, never plain text.
+ *
+ * Owns one FinancialProfile and many Transactions; deleting a user cascades to both.
+ */
 public class User extends BaseEntity {
 
     @NotBlank
@@ -37,6 +43,7 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
+    // Defaults: every new user gets role USER and is enabled.
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.USER;

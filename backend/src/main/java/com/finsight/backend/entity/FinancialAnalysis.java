@@ -23,6 +23,11 @@ import java.util.List;
                 @Index(name = "idx_financial_analysis_profile_id", columnList = "financial_profile_id")
         }
 )
+/**
+ * Stored result of one analysis job (table `financial_analysis`): totals (income,
+ * expense, savings), counts of subscriptions / unusual transactions / recommendations,
+ * a summary, and the generated Recommendation and SpendingAlert rows.
+ */
 public class FinancialAnalysis extends BaseEntity {
 
    @ManyToOne(fetch = FetchType.LAZY)

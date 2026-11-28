@@ -1,6 +1,9 @@
 /* FinSight File Notes: Loads and renders the main dashboard metrics, charts, comparisons, and financial summaries. */
 // FinSight chart defaults: match the application's typography and white content surfaces.
 if (window.Chart) { Chart.defaults.font.family = "Segoe UI, Arial, sans-serif"; Chart.defaults.color = "#0B2545"; }
+// Dashboard page: if an analysis is still running show a waiting notice; otherwise
+// load the latest analysis, all transactions and the health insights in parallel, then
+// fill the summary cards and render the charts (spending by category, comparisons).
 document.addEventListener("DOMContentLoaded", async () => {
   const user = currentUser();
   if (isAnalysisRunning()) {
@@ -15,6 +18,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     const [analysis, transactions, health] = await Promise.all([API.getLatestAnalysis(), API.getTransactions(), API.getInsights().catch(() => null)]);
     const a = analysis || {};
     const tx = Array.isArray(transactions) ? transactions : [];
+    // Health score and priority insights are rendered by financial-health.js; the
+    // score itself comes from the backend (/api/insights), it is never calculated in
+    // the browser.
     window.FinSightHealth?.renderHealth("dashboardHealthContent", health, a);
     window.FinSightHealth?.renderPriority("dashboardPriorityInsights", health, a);
 
@@ -26,6 +32,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Spending by Category: amounts stay in the dedicated legend; the doughnut
     // itself remains clean and its tooltip shows the category/value once.
+    // spendingByCategory comes from the analysis response; categories with no spend
+    // are skipped.
     const cats = Object.entries(a.spendingByCategory || {}).filter(([, v]) => Number(v) > 0);
     const chartColors = ["#3B82F6", "#06B6D4", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6", "#EC4899", "#14B8A6", "#F97316", "#6366F1", "#84CC16", "#EAB308"];
     const categoryCanvas = qs("#categoryChart");

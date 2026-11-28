@@ -1,3 +1,18 @@
+"""Transaction category classifier (AI service).
+
+Hybrid approach, evaluated in this order for every description:
+  1. EXACT_DESCRIPTION_CATEGORIES - whole-description lookup (confidence 0.995)
+  2. DESCRIPTION_RULES            - keyword/merchant rules (confidence 0.99)
+  3. TF-IDF + Logistic Regression - trained model, used only when no rule matches
+
+The model is trained offline on data/personal_transactions_dataset.xlsx and saved to
+models/transaction_classifier.joblib. Its raw labels (e.g. "COFFEE SHOPS") are
+translated to FinSight categories (e.g. "FOOD") through MODEL_TO_FINSIGHT_CATEGORY.
+
+Exposed through POST /api/classification in app/main.py via the shared
+`transaction_classifier` instance at the bottom of this file.
+"""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -30,6 +45,9 @@ class TransactionClassifier:
     wording used by a user's transaction file.
     """
 
+    # Maps the labels used in the training dataset (left) to the category names used
+    # by the Java backend (right, see TransactionCategory enum). Unknown model labels
+    # fall back to "OTHER".
     MODEL_TO_FINSIGHT_CATEGORY = {
         "ALCOHOL & BARS": "ENTERTAINMENT",
         "AUTO INSURANCE": "FINANCIAL",
@@ -57,6 +75,11 @@ class TransactionClassifier:
     # These rules are deliberately ordered from most specific to broadest.
     # Spotify and other subscriptions MUST be classified as SUBSCRIPTION.
     # Dataset-specific aliases are included in the main rules below.
+    # Rule table: (category, confidence, keywords). The first rule with a keyword
+    # found inside the description wins, so ORDER MATTERS - put the most specific
+    # categories first (e.g. SUBSCRIPTION before ENTERTAINMENT so "SPOTIFY" is not
+    # treated as generic entertainment). Add new merchants to the keyword tuple of the
+    # right category.
     DESCRIPTION_RULES = (
         (
             "SUBSCRIPTION",
@@ -316,6 +339,8 @@ class TransactionClassifier:
         ),
     )
 
+    # Whole-description overrides for the exact wording used in the sample/test CSV
+    # files. Checked before any keyword rule, so it has the highest priority.
     EXACT_DESCRIPTION_CATEGORIES = {
         "MONTHLY ALLOWANCE": "OTHER",
         "SCHOLARSHIP PAYMENT": "OTHER",
@@ -353,12 +378,20 @@ class TransactionClassifier:
     }
 
     def __init__(self) -> None:
+        # base_path = ai-service/ (three levels up from this file). The trained model
+        # lives in ai-service/models/.
         self.base_path = Path(__file__).resolve().parent.parent.parent
         self.model_path = self.base_path / "models" / "transaction_classifier.joblib"
+        # Lazily loaded sklearn Pipeline; stays None until get_model()/train() is
+        # called.
         self.model: Pipeline | None = None
 
     @staticmethod
     def create_model() -> Pipeline:
+        """Build an untrained sklearn pipeline: TF-IDF (unigrams + bigrams) feeding a
+        class-balanced Logistic Regression. Returns the pipeline; call .fit() on
+        it to train.
+        """
         return Pipeline(
             steps=[
                 (
@@ -382,6 +415,16 @@ class TransactionClassifier:
         )
 
     def train(self, dataframe: pd.DataFrame) -> dict:
+        """Train and persist the classifier from a labelled dataframe.
+
+        Requires "Description" and "Category" columns. Rows are upper-cased and
+        trimmed, then split 80/20 (stratified when every class has 2+ rows) to
+        measure accuracy. Datasets under 20 rows skip the split and report no
+        accuracy. The fitted model is saved to
+        models/transaction_classifier.joblib.
+
+        Returns a summary dict (record counts, categories, accuracy, model path).
+        """
         if dataframe is None:
             raise ValueError("Training dataframe cannot be None.")
         if dataframe.empty:
@@ -421,6 +464,8 @@ class TransactionClassifier:
         X = training_data["Description"]
         y = training_data["Category"]
         class_counts = y.value_counts()
+        # Stratified splitting needs at least 2 samples per class, otherwise scikit-
+        # learn raises an error.
         can_stratify = len(class_counts) > 1 and class_counts.min() >= 2
 
         if len(training_data) >= 20:
@@ -460,6 +505,10 @@ class TransactionClassifier:
         }
 
     def load_model(self) -> Pipeline:
+        """Load the saved model from disk into self.model. Raises FileNotFoundError
+        if the model has not been trained yet, ValueError if the file is not a
+        sklearn Pipeline.
+        """
         if not self.model_path.exists():
             raise FileNotFoundError(
                 "Trained transaction classification model not found at: "
@@ -476,6 +525,7 @@ class TransactionClassifier:
         return loaded_model
 
     def get_model(self) -> Pipeline:
+        """Return the cached model, loading it from disk on first use."""
         if self.model is None:
             self.load_model()
         if self.model is None:
@@ -486,6 +536,13 @@ class TransactionClassifier:
 
     @classmethod
     def _rule_classify(cls, description: str) -> tuple[str, float] | None:
+        """Keyword-rule step. Returns (category, confidence) for the first rule whose
+        keyword appears anywhere in the description, or None if nothing matches.
+
+        NOTE: matching is a plain substring test, so very short keywords (e.g.
+        "BP", "BUS", "RENT") can also match inside longer words. Prefer longer,
+        more specific keywords when adding rules.
+        """
         normalized = " ".join(str(description).strip().upper().split())
         if not normalized:
             return None
@@ -499,10 +556,19 @@ class TransactionClassifier:
 
     @classmethod
     def map_model_category(cls, model_category: str) -> str:
+        """Translate a raw model label into a FinSight category (defaults to
+        "OTHER").
+        """
         normalized = str(model_category).strip().upper()
         return cls.MODEL_TO_FINSIGHT_CATEGORY.get(normalized, "OTHER")
 
     def classify_one(self, description: str) -> dict[str, Any]:
+        """Classify a single description. Returns a dict with category,
+        mappedCategory, confidence and `source` (which of the three stages
+        decided: EXACT_DESCRIPTION_RULE, RULE_BASED_HIGH_CONFIDENCE or
+        TFIDF_LOGISTIC_REGRESSION). Model results also include the raw
+        `modelCategory`.
+        """
         normalized = " ".join(str(description or "").strip().upper().split())
         if not normalized:
             raise ValueError("Transaction description cannot be empty.")
@@ -526,6 +592,8 @@ class TransactionClassifier:
                 "source": "RULE_BASED_HIGH_CONFIDENCE",
             }
 
+        # Stage 3: nothing matched the rules, so ask the trained model and use its
+        # highest-probability class.
         model = self.get_model()
         probabilities = model.predict_proba([normalized])[0]
         class_index = int(probabilities.argmax())
@@ -542,6 +610,11 @@ class TransactionClassifier:
         }
 
     def classify(self, transactions: list[dict[str, Any]]) -> dict[str, Any]:
+        """Classify a batch of transactions (dicts with at least "description" and
+        optionally "id"). Non-dict items are skipped; a blank description raises
+        ValueError. Returns the response envelope consumed by the Spring Boot
+        AiClassificationClient.
+        """
         if transactions is None:
             transactions = []
 
@@ -579,4 +652,6 @@ class TransactionClassifier:
         }
 
 
+# Shared singleton imported by app/main.py (the model is loaded once and reused across
+# requests).
 transaction_classifier = TransactionClassifier()

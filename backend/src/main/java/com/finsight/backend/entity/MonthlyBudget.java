@@ -6,6 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.math.BigDecimal;
 
+/**
+ * Budget amount for one calendar month (table `monthly_budgets`). `budgetMonth` is a
+ * "YYYY-MM" string and is unique per financial profile.
+ */
 @Getter @Setter @NoArgsConstructor
 @Entity @Table(name="monthly_budgets", uniqueConstraints=@UniqueConstraint(columnNames={"financial_profile_id","budget_month"}))
 public class MonthlyBudget extends BaseEntity {

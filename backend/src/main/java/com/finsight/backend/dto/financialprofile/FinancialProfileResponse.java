@@ -9,6 +9,10 @@ import lombok.Getter;
 import java.math.BigDecimal;
 import java.util.List;
 
+/**
+ * The saved profile as shown to the user. Student fields are null for non-students and
+ * employee fields are null for students.
+ */
 @Getter
 @AllArgsConstructor
 public class FinancialProfileResponse {

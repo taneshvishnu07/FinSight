@@ -24,6 +24,17 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Manual CRUD for transactions (file imports are handled by UploadServiceImpl).
+ *
+ * Security rule used throughout: every read/update/delete looks the transaction up
+ * with findByIdAndUser, so a user can never touch another user's data - a foreign id
+ * simply looks like "Transaction not found."
+ *
+ * The API uses LocalDate for dates, while the entity stores LocalDateTime, so dates
+ * are saved at the start of the day. Class is @Transactional; read methods override it
+ * with readOnly = true.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -144,6 +155,8 @@ public class TransactionServiceImpl implements TransactionService {
          * make sure that the upload belongs to
          * the current user's financial profile.
          */
+        // Optional link to an upload; verified to belong to the current user's
+        // profile.
         if (request.getUploadHistoryId() != null) {
 
             UploadHistory uploadHistory =
@@ -274,6 +287,8 @@ public class TransactionServiceImpl implements TransactionService {
         /*
          * DATE
          */
+        // Partial update (PUT semantics here are "only change what was sent"): null
+        // fields in the request leave the stored values untouched.
         if (request.getTransactionDate() != null) {
 
             transaction.setTransactionDate(

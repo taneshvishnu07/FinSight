@@ -8,6 +8,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Recommendations for an upload with the totals they are based on (mirrors the Python
+ * /api/recommendations JSON).
+ */
 @Getter
 @Setter
 @NoArgsConstructor

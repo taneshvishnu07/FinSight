@@ -13,10 +13,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (loginButton) loginButton.textContent = "Login to Financial Profile Setting";
   }
 
+  // Client-side checks mirror the backend rules in RegisterRequest.java (the backend
+  // is still the authority).
   function validateFullName(value) {
     return /^[A-Za-zÀ-ÖØ-öø-ÿ]+(?:[ '\\-][A-Za-zÀ-ÖØ-öø-ÿ]+)+$/.test(value.trim());
   }
 
+  /**
+   * Which password rules are satisfied (length 8+, upper, lower, digit, special
+   * character).
+   */
   function passwordChecks(password) {
     return {
       length: password.length >= 8,
@@ -27,6 +33,9 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
+  /**
+   * Turn the rule results into a strength label/score for the meter.
+   */
   function passwordStrength(password) {
     const checks = passwordChecks(password);
     const score = Object.values(checks).filter(Boolean).length;
@@ -41,6 +50,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const strengthBar = qs("#passwordStrengthBar");
   const passwordRequirements = qs("#passwordRequirements");
 
+  /**
+   * Update the strength meter and requirement list while the user types.
+   */
   function updatePasswordStrength() {
     if (!password || !strengthLabel || !strengthBar) return;
     const value = password.value;
@@ -62,6 +74,8 @@ document.addEventListener("DOMContentLoaded", () => {
   password?.addEventListener("input", updatePasswordStrength);
   updatePasswordStrength();
 
+  // Login form: validate, call API.login, store the JWT and user info in localStorage,
+  // then go to the dashboard (or to profile.html if the profile is not completed yet).
   login?.addEventListener("submit", async event => {
     event.preventDefault();
     const message = qs("#formMessage");
@@ -94,6 +108,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Registration form: validate name, email, password strength and confirmation, call
+  // API.register, then redirect to login (a flag shows the first-login guide).
   register?.addEventListener("submit", async event => {
     event.preventDefault();
     const message = qs("#formMessage");

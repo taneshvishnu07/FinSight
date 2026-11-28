@@ -19,6 +19,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const studentRequired = ["#institution", "#course", "#studyYear", "#monthlyAllowance"];
   const employeeRequired = ["#occupation", "#companyName", "#monthlySalary"];
 
+  // Profile page: one form for personal/occupation details plus a grid of monthly
+  // budgets. The same page is used for first-time setup (POST) and later edits (PUT).
   function setRequired(selectors, required) {
     selectors.forEach(selector => {
       const element = qs(selector);
@@ -26,6 +28,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
+  /**
+   * Show only the fields for the chosen occupation (student / employee / other) and
+   * make them required.
+   */
   function updateOccupationFields() {
     const type = occupation?.value || "";
     const student = type === "STUDENT";
@@ -46,6 +52,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     setRequired(employeeRequired, employee);
   }
 
+  /**
+   * Fill the year selector used by the monthly budget grid.
+   */
   function populateBudgetYears() {
     if (!budgetYear || budgetYear.options.length) return;
     const currentYear = new Date().getFullYear();
@@ -58,6 +67,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     budgetYear.value = String(currentYear);
   }
 
+  /**
+   * Budgets are whole numbers: strip decimals and invalid characters as the user
+   * types.
+   */
   function attachWholeNumberBehavior(input) {
     input.addEventListener("input", () => {
       input.value = input.value.replace(/\D+/g, "");
@@ -65,6 +78,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     input.addEventListener("wheel", event => event.preventDefault(), { passive: false });
   }
 
+  /**
+   * Draw the 12 month inputs for the selected year, pre-filled with saved budgets.
+   */
   function renderBudgetFields(existingBudgets = []) {
     if (!budgetFields || !budgetYear) return;
     const year = Number(budgetYear.value);
@@ -89,6 +105,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     budgetFields.querySelectorAll(".monthly-budget-input").forEach(attachWholeNumberBehavior);
   }
 
+  /**
+   * Read the budget inputs into [{budgetMonth: "YYYY-MM", amount}] (empty months are
+   * skipped).
+   */
   function collectMonthlyBudgetRows() {
     if (!budgetFields) return [];
     return [...budgetFields.querySelectorAll(".monthly-budget-input")]
@@ -99,6 +119,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       }));
   }
 
+  /**
+   * Check the rows before sending (whole numbers >= 0).
+   */
   function validateMonthlyBudgetRows(rows) {
     if (rows.some(row => !Number.isInteger(row.amount) || row.amount < 0)) {
       setMessage(budgetMessage, "Monthly budgets must be whole numbers equal to or greater than zero.");
@@ -107,6 +130,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     return true;
   }
 
+  /**
+   * Fetch saved budgets from the backend for the grid.
+   */
   async function loadExistingBudgets() {
     if (!profileExists) return [];
     try {
@@ -118,6 +144,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  /**
+   * Load the saved profile into the form. A "profile not found" response means first-
+   * time setup, which is not treated as an error.
+   */
   async function loadProfile() {
     try {
       const data = await API.getProfile();

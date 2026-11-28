@@ -16,6 +16,11 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 
+/**
+ * Record of one file upload (table `upload_history`): original file name, rows found
+ * vs rows imported, status and time. Owns the transactions imported from the file and
+ * the analysis jobs run on it.
+ */
 @Entity
 @Table(name = "upload_history")
 public class UploadHistory extends BaseEntity {

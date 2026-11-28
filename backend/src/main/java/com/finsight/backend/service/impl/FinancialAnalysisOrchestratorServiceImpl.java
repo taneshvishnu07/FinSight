@@ -23,6 +23,15 @@ import com.finsight.backend.service.UnusualSpendingDetectionService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Coordinates the full analysis pipeline for one upload by calling the other services
+ * in a fixed order (see runFinancialAnalysis). It contains no analysis logic of its
+ * own - it sequences the steps, guards against missing results, and merges everything
+ * into one response for the frontend.
+ *
+ * The pipeline is one database transaction: if any step throws, nothing from this run
+ * is kept.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -70,6 +79,19 @@ public class FinancialAnalysisOrchestratorServiceImpl
      * ============================================================
      */
 
+    /**
+     * Run the complete analysis for the upload, in this order:
+     *   1. AI health check (fail fast if the Python service is down)
+     *   2. Classify transactions (so later steps see categories)
+     *   3. Basic financial analysis (creates the FinancialAnalysis record)
+     *   4. Subscription detection
+     *   5. Unusual spending detection
+     *   6. Recommendations (also updates the analysis counts)
+     *   7. Alerts
+     *   8. Re-read the analysis so the counts shown are the final ones
+     *
+     * Returns the combined result used by the analysis / report pages.
+     */
     @Override
     @Transactional
     public FinancialAnalysisOrchestratorResponse
@@ -375,6 +397,11 @@ public class FinancialAnalysisOrchestratorServiceImpl
      * ============================================================
      */
 
+    /**
+     * Overwrite the subscription, unusual-transaction and recommendation counts on the
+     * returned analysis with the AI step results (the source of truth), so the user
+     * never sees the earlier rough counts from the basic analysis step.
+     */
     private void synchronizeTransactionAnalysis(
             TransactionAnalysisResponse transactionAnalysis,
             SubscriptionDetectionResponse subscriptionDetection,
@@ -474,6 +501,9 @@ public class FinancialAnalysisOrchestratorServiceImpl
      * ============================================================
      */
 
+    /**
+     * Status text for the response; defaults to COMPLETED when the analysis has none.
+     */
     private String determineStatus(
             TransactionAnalysisResponse transactionAnalysis) {
 
@@ -499,6 +529,10 @@ public class FinancialAnalysisOrchestratorServiceImpl
      * ============================================================
      */
 
+    /**
+     * One-sentence recap of what the pipeline produced (transactions analysed and
+     * counts of subscriptions, unusual transactions, recommendations and alerts).
+     */
     private String generateSummary(
             TransactionAnalysisResponse transactionAnalysis,
             SubscriptionDetectionResponse subscriptionDetection,

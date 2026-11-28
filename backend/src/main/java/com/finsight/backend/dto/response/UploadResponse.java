@@ -7,6 +7,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * An upload record as shown to the user: file name, rows found vs imported, status and
+ * time.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

@@ -9,6 +9,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.finsight.backend.entity.User;
 
+/**
+ * Adapter that wraps a User entity as a Spring Security UserDetails.
+ *
+ * NOTE: currently not referenced anywhere - CustomUserDetailsService returns Spring's
+ * built-in User instead. Use this class if you need access to the full User entity
+ * from the security context, otherwise it can be removed.
+ */
 public class UserPrincipal implements UserDetails {
 
     private final User user;

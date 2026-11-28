@@ -13,6 +13,12 @@ import com.finsight.backend.service.AlertService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * REST endpoints for spending alerts, mounted under /api/alerts. Alerts belong to the
+ * latest analysis of an upload (`uploadHistoryId`). Thin controller - logic is in
+ * AlertService. All data is scoped to the logged-in user; a user can only act on their
+ * own uploads.
+ */
 @RestController
 @RequestMapping("/api/alerts")
 @RequiredArgsConstructor
@@ -20,6 +26,10 @@ public class AlertController {
 
     private final AlertService alertService;
 
+    /**
+     * POST /api/alerts/generate/{uploadHistoryId} - (re)generate alerts for the upload
+     * by calling the AI service, and save them.
+     */
     @PostMapping("/generate/{uploadHistoryId}")
     public ResponseEntity<AlertResponse> generateAlerts(
             @PathVariable Long uploadHistoryId) {
@@ -29,6 +39,9 @@ public class AlertController {
         );
     }
 
+    /**
+     * GET /api/alerts/{uploadHistoryId} - read the saved alerts for the upload.
+     */
     @GetMapping("/{uploadHistoryId}")
     public ResponseEntity<AlertResponse> getAlerts(
             @PathVariable Long uploadHistoryId) {
@@ -38,6 +51,9 @@ public class AlertController {
         );
     }
 
+    /**
+     * PATCH /api/alerts/{uploadHistoryId}/{alertId}/read - mark one alert as read.
+     */
     @PatchMapping("/{uploadHistoryId}/{alertId}/read")
     public ResponseEntity<AlertResponse> markAsRead(
             @PathVariable Long uploadHistoryId,
@@ -48,6 +64,10 @@ public class AlertController {
         );
     }
 
+    /**
+     * POST /api/alerts/{uploadHistoryId}/read-all - mark every alert of the upload as
+     * read.
+     */
     @PostMapping("/{uploadHistoryId}/read-all")
     public ResponseEntity<AlertResponse> markAllAsRead(
             @PathVariable Long uploadHistoryId) {

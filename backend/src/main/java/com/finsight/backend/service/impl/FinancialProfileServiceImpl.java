@@ -27,6 +27,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Business logic for the financial profile (one per user): validation, saving the
+ * occupation-specific details, and the monthly budgets sent along with the profile
+ * form.
+ *
+ * Occupation handling: STUDENT uses StudentDetails; EMPLOYEE and OTHER both use
+ * EmployeeDetails (for OTHER the company is set to "Not specified", salary 0 and side
+ * income false).
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -36,6 +45,11 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
     private final MonthlyBudgetRepository monthlyBudgetRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Validate, make sure the user has no profile yet, save it with its details, then
+     * save the submitted monthly budgets. saveAndFlush is used so the profile id
+     * exists before the budgets are attached.
+     */
     @Override
     public FinancialProfileResponse createProfile(FinancialProfileCreateRequest request) {
         User user = getAuthenticatedUser();
@@ -58,6 +72,9 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
         return mapToResponse(savedProfile);
     }
 
+    /**
+     * Return the logged-in user's profile (error if none exists yet).
+     */
     @Override
     @Transactional(readOnly = true)
     public FinancialProfileResponse getMyProfile() {
@@ -67,6 +84,11 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
         return mapToResponse(profile);
     }
 
+    /**
+     * Validate and update the profile. If the occupation type changed, the old
+     * student/employee details are dropped first (orphan removal deletes them) so
+     * stale data does not remain.
+     */
     @Override
     public FinancialProfileResponse updateProfile(FinancialProfileCreateRequest request) {
         User user = getAuthenticatedUser();
@@ -91,6 +113,9 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
         return mapToResponse(updatedProfile);
     }
 
+    /**
+     * Create or update the details entity that matches the occupation type.
+     */
     private void applyOccupationDetails(FinancialProfile profile, FinancialProfileCreateRequest request) {
         if (request.getOccupationType() == OccupationType.STUDENT) {
             StudentDetails details = profile.getStudentDetails();
@@ -121,6 +146,12 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
         }
     }
 
+    /**
+     * Input validation with user-friendly messages: goal period 1-120 months, an
+     * occupation type, plus the fields required for that occupation (student:
+     * institution, course, year 1-20, allowance >= 0, scholarship flag; employee:
+     * occupation, company, salary >= 0, side-income flag; other: occupation).
+     */
     private void validateProfileDetails(FinancialProfileCreateRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("Financial profile data is required.");
@@ -162,6 +193,10 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
         }
     }
 
+    /**
+     * Each budget month must look like YYYY-MM and the amount must be a whole number
+     * >= 0.
+     */
     private void validateMonthlyBudgets(List<MonthlyBudgetRequest> requests) {
         if (requests == null) return;
         for (MonthlyBudgetRequest request : requests) {
@@ -178,6 +213,10 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
         }
     }
 
+    /**
+     * Upsert each submitted month (update the existing row for that month, otherwise
+     * insert a new one). Amounts are stored as whole numbers.
+     */
     private void saveMonthlyBudgets(FinancialProfile profile, List<MonthlyBudgetRequest> requests) {
         if (requests == null || requests.isEmpty()) return;
 
@@ -193,12 +232,19 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
         monthlyBudgetRepository.flush();
     }
 
+    /**
+     * Throw IllegalArgumentException(message) if the value is null or blank.
+     */
     private void requireText(String value, String message) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(message);
         }
     }
 
+    /**
+     * Delete the profile; cascades remove details, budgets, uploads, transactions and
+     * analyses.
+     */
     @Override
     public void deleteProfile() {
         User user = getAuthenticatedUser();
@@ -207,6 +253,9 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
         financialProfileRepository.delete(Objects.requireNonNull(profile));
     }
 
+    /**
+     * Build a new StudentDetails from the request.
+     */
     private StudentDetails createStudentDetails(FinancialProfileCreateRequest request, FinancialProfile profile) {
         StudentDetails details = new StudentDetails();
         details.setFinancialProfile(profile);
@@ -218,6 +267,9 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
         return details;
     }
 
+    /**
+     * Build a new EmployeeDetails from the request.
+     */
     private EmployeeDetails createEmployeeDetails(FinancialProfileCreateRequest request, FinancialProfile profile) {
         EmployeeDetails details = new EmployeeDetails();
         details.setFinancialProfile(profile);
@@ -228,6 +280,9 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
         return details;
     }
 
+    /**
+     * Build placeholder EmployeeDetails for an "OTHER" occupation.
+     */
     private EmployeeDetails createOtherDetails(FinancialProfileCreateRequest request, FinancialProfile profile) {
         EmployeeDetails details = new EmployeeDetails();
         details.setFinancialProfile(profile);
@@ -238,6 +293,9 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
         return details;
     }
 
+    /**
+     * Refresh the placeholder details for an "OTHER" occupation.
+     */
     private void updateOtherDetails(EmployeeDetails details, FinancialProfileCreateRequest request) {
         details.setOccupation(request.getOccupation().trim());
         details.setCompanyName("Not specified");
@@ -245,6 +303,9 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
         details.setHasSideIncome(Boolean.FALSE);
     }
 
+    /**
+     * Copy the request values onto the existing StudentDetails.
+     */
     private void updateStudentDetails(StudentDetails details, FinancialProfileCreateRequest request) {
         details.setInstitution(request.getInstitution());
         details.setCourse(request.getCourse());
@@ -253,6 +314,9 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
         details.setReceivesScholarship(request.getReceivesScholarship());
     }
 
+    /**
+     * Copy the request values onto the existing EmployeeDetails.
+     */
     private void updateEmployeeDetails(EmployeeDetails details, FinancialProfileCreateRequest request) {
         details.setOccupation(request.getOccupation());
         details.setCompanyName(request.getCompanyName());
@@ -260,6 +324,9 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
         details.setHasSideIncome(request.getHasSideIncome());
     }
 
+    /**
+     * Resolve the logged-in user from the SecurityContext.
+     */
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null
@@ -272,6 +339,10 @@ public class FinancialProfileServiceImpl implements FinancialProfileService {
                 .orElseThrow(() -> new IllegalStateException("Authenticated user not found."));
     }
 
+    /**
+     * Entity -> API response. Student fields are null for non-students; employee
+     * fields are null for students.
+     */
     private FinancialProfileResponse mapToResponse(FinancialProfile profile) {
         StudentDetails student = profile.getStudentDetails();
         EmployeeDetails employee = profile.getEmployeeDetails();

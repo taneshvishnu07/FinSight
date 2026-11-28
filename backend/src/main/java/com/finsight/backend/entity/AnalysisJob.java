@@ -14,6 +14,11 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 
+/**
+ * One run of the analysis pipeline for an uploaded file (table `analysis_jobs`):
+ * tracks status (PENDING -> PROCESSING -> COMPLETED/FAILED), timing and any error
+ * message. Its result is stored as a FinancialAnalysis.
+ */
 @Entity
 @Table(name = "analysis_jobs")
 public class AnalysisJob extends BaseEntity {

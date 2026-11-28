@@ -13,6 +13,12 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Body for creating or updating the financial profile. Which detail fields are
+ * required depends on occupationType (see
+ * FinancialProfileServiceImpl.validateProfileDetails). Monthly budgets can be sent in
+ * the same request.
+ */
 @Getter
 @Setter
 public class FinancialProfileCreateRequest {

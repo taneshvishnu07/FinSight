@@ -8,6 +8,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Expense forecast (mirrors the Python /api/forecast JSON): the model used and
+ * predicted expense with lower/upper bounds per future month.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

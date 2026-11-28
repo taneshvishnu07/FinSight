@@ -19,6 +19,8 @@
     }
   ];
 
+  // In-app guide: a step-by-step overlay exposed as window.FinSightGuide (open/close),
+  // plus the first-login announcement handled in dashboard.js.
   function render(stepIndex){
     const mount = qs("#userGuideMount");
     if(!mount) return;

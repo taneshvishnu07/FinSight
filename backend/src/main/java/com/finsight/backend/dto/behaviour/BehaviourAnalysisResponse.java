@@ -8,6 +8,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Spending behaviour result from the Python /api/behaviour-analysis endpoint: totals,
+ * category breakdown and spending clusters.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

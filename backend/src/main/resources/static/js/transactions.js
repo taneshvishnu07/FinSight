@@ -8,6 +8,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const uploadButton = qs("#uploadButton");
   let selectedValidation = null;
 
+  // Upload page logic. Before anything is sent, the chosen CSV is validated in the
+  // browser (columns, dates, 3-month span) using the same rules as
+  // UploadServiceImpl.java so users get instant feedback.
   function setValidation(id, state, text) {
     const row = qs(`#${id}`);
     if (!row) return;
@@ -18,6 +21,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (strong) strong.textContent = text;
   }
 
+  /**
+   * Small CSV line splitter (handles quoted commas) - client copy of the Java parser.
+   */
   function parseCsvLine(line) {
     const values = [];
     let current = "";
@@ -39,14 +45,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     return values;
   }
 
+  /**
+   * Normalise a header cell (lower case, underscores) before matching column names.
+   */
   function normalizeHeader(value) {
     return String(value || "").trim().toLowerCase().replace(/\s+/g, "_");
   }
 
+  /**
+   * True if the header row contains any of the accepted aliases for a column.
+   */
   function hasColumn(headers, aliases) {
     return aliases.some(alias => headers.includes(alias));
   }
 
+  /**
+   * Parse the date formats accepted by the backend (ISO, dd/MM/yyyy, MM/dd/yyyy, ...).
+   */
   function parseDate(value) {
     const text = String(value || "").trim();
     if (!text) return null;
@@ -64,6 +79,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     return Number.isNaN(parsed.getTime()) ? null : parsed;
   }
 
+  /**
+   * Read the file and check: required columns, valid dates and amounts, and at least 3
+   * calendar months of data. Shows the result in the validation panel and stores it in
+   * selectedValidation.
+   */
   async function validateFile(file) {
     selectedValidation = null;
     validation?.classList.remove("hidden");
@@ -154,6 +174,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
+  /**
+   * Handle a newly chosen or dropped file: show its name and run validation.
+   */
   async function selectFile(file) {
     selected.textContent = file ? file.name : "No file selected";
     await validateFile(file);
@@ -176,6 +199,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     setMessage(msg, "");
   });
 
+  // Upload: send the validated file with API.uploadTransactions, remember the new
+  // upload id, then open analysis.html?uploadHistoryId=<id>, which runs the analysis
+  // pipeline.
   uploadButton?.addEventListener("click", async () => {
     const file = input.files[0];
     if (!file) { setMessage(msg, "Please select a CSV file."); return; }
@@ -199,19 +225,30 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  // Transactions are grouped by month; which groups are expanded/collapsed is
+  // remembered in localStorage per user.
   const transactionStateKey = (() => {
     const user = currentUser();
     return `finsight_transaction_collapse_state_${user.email || user.id || "current-user"}`;
   })();
 
+  /**
+   * Read the saved expand/collapse state.
+   */
   function loadTransactionGroupState() {
     try { return JSON.parse(localStorage.getItem(transactionStateKey) || "{}"); } catch { return {}; }
   }
 
+  /**
+   * Save the expand/collapse state.
+   */
   function saveTransactionGroupState(state) {
     localStorage.setItem(transactionStateKey, JSON.stringify(state || {}));
   }
 
+  /**
+   * Apply the saved state to the monthly groups in the DOM.
+   */
   function applyTransactionGroupState() {
     const state = loadTransactionGroupState();
     qsa(".transaction-group-toggle").forEach(button => {

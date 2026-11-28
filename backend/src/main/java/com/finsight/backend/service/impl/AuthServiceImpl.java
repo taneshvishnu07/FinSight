@@ -22,6 +22,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.stereotype.Service;
 
+/**
+ * Registration, login and password change.
+ *
+ * Emails are trimmed and lower-cased everywhere so "A@x.com" and "a@x.com " are the
+ * same account. Passwords are only ever stored as BCrypt hashes.
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -36,6 +42,10 @@ public class AuthServiceImpl implements AuthService {
 
     private final JwtService jwtService;
 
+    /**
+     * Create a user. Fails with "Email already exists." if the email is taken. Role
+     * and enabled flag use the entity defaults (USER, true).
+     */
     @Override
     public void register(RegisterRequest request) {
 
@@ -66,6 +76,11 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
     }
 
+    /**
+     * Authenticate credentials through Spring Security (throws on a wrong password),
+     * then issue a JWT. `profileCompleted` tells the frontend whether to send the user
+     * to the profile setup page.
+     */
     @Override
     public LoginResponse login(
             LoginRequest request) {
@@ -101,6 +116,11 @@ public class AuthServiceImpl implements AuthService {
                 profileCompleted
         );
     }
+    /**
+     * Change the logged-in user's password after checking that: the confirmation
+     * matches, the new password differs from the current one, and the current password
+     * is correct.
+     */
     @Override
     public void changePassword(ChangePasswordRequest request) {
         if (request == null) {
@@ -121,6 +141,10 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
     }
 
+    /**
+     * Load the User for the email stored in the current security context (set by
+     * JwtAuthenticationFilter).
+     */
     private User getAuthenticatedUser() {
         String email = org.springframework.security.core.context.SecurityContextHolder
                 .getContext().getAuthentication().getName();

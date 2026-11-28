@@ -12,6 +12,9 @@ import com.finsight.backend.service.ForecastService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Expense forecasting endpoint, mounted under /api/forecast.
+ */
 @RestController
 @RequestMapping("/api/forecast")
 @RequiredArgsConstructor
@@ -19,6 +22,10 @@ public class ForecastController {
 
     private final ForecastService forecastService;
 
+    /**
+     * POST /api/forecast/{uploadHistoryId}?monthsAhead=N - predict the next N months
+     * of expenses (default 1) for the upload.
+     */
     @PostMapping("/{uploadHistoryId}")
     public ResponseEntity<ForecastResponse> forecast(
             @PathVariable Long uploadHistoryId,

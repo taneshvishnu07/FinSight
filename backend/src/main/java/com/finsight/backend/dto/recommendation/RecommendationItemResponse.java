@@ -6,6 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * One recommendation. `id` is null when it comes straight from the AI service and set
+ * once it is saved.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

@@ -16,17 +16,28 @@ import org.springframework.web.client.RestClient;
 import com.finsight.backend.dto.forecast.ForecastResponse;
 import com.finsight.backend.entity.Transaction;
 
+/**
+ * HTTP client for POST /api/forecast (monthly expense forecast).
+ */
 @Component
 public class AiForecastClient {
 
     private final RestClient restClient;
 
+    /**
+     * Reads the AI service address from `finsight.ai-service.url` (default
+     * http://127.0.0.1:8000) and builds a RestClient for it.
+     */
     public AiForecastClient(
             RestClient.Builder restClientBuilder,
             @Value("${finsight.ai-service.url:http://127.0.0.1:8000}") String aiServiceUrl) {
         this.restClient = AiRestClientFactory.create(restClientBuilder, aiServiceUrl);
     }
 
+    /**
+     * Send the transactions and the number of months to predict (at least 1) and
+     * return the forecast.
+     */
     public ForecastResponse forecast(List<Transaction> transactions, int monthsAhead) {
         Map<String, Object> request = new LinkedHashMap<>();
         request.put("transactions", buildTransactionPayload(transactions));
@@ -47,6 +58,10 @@ public class AiForecastClient {
         return response;
     }
 
+    /**
+     * Convert Transaction entities to the AI JSON shape (duplicate of
+     * AiTransactionPayloadBuilder.build()).
+     */
     private List<Map<String, Object>> buildTransactionPayload(List<Transaction> transactions) {
         List<Map<String, Object>> payload = new ArrayList<>();
 

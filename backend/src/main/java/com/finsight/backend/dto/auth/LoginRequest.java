@@ -5,6 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Body of POST /api/auth/login.
+ */
 @Getter
 @Setter
 public class LoginRequest {

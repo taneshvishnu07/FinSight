@@ -1,3 +1,11 @@
+"""Dataset loading utilities for the AI service.
+
+Used mainly when (re)training the transaction classifier: reads the labelled dataset
+(data/personal_transactions_dataset.xlsx) from disk or from uploaded bytes, and
+checks that the required columns exist. Runtime API requests do NOT go through this
+module - the Spring Boot backend sends transactions as JSON.
+"""
+
 from io import BytesIO
 from pathlib import Path
 from typing import BinaryIO
@@ -17,6 +25,8 @@ class FinancialDataLoader:
     the file has accidentally been given a .csv extension.
     """
 
+    # Encodings tried in order when reading a CSV. utf-8-sig handles files saved by
+    # Excel (BOM); cp1252/latin1 are fallbacks for legacy exports.
     SUPPORTED_ENCODINGS = [
         "utf-8",
         "utf-8-sig",
@@ -24,6 +34,8 @@ class FinancialDataLoader:
         "latin1",
     ]
 
+    # Columns that must exist in any dataset. Names must match the header row exactly
+    # (after whitespace is stripped).
     REQUIRED_COLUMNS = [
         "Date",
         "Description",
@@ -36,6 +48,9 @@ class FinancialDataLoader:
 
     def __init__(self) -> None:
 
+        # Resolve paths relative to this file so loading works regardless of the
+        # process working directory: base_path = ai-service/, datasets live in ai-
+        # service/data/.
         self.base_path = (
             Path(__file__)
             .resolve()
@@ -171,6 +186,8 @@ class FinancialDataLoader:
 
         # XLSX files are ZIP containers and normally begin
         # with the PK ZIP signature.
+        # Sniff the real format from the bytes instead of trusting the file extension
+        # (an .xlsx renamed to .csv is a common user mistake).
         is_excel_workbook = (
             file_bytes.startswith(
                 b"PK\x03\x04"
@@ -263,6 +280,8 @@ class FinancialDataLoader:
 
         last_error = None
 
+        # Try each encoding until one decodes cleanly; only decode errors move on to
+        # the next one - empty/parse errors are reported immediately.
         for encoding in (
             FinancialDataLoader.SUPPORTED_ENCODINGS
         ):
@@ -355,6 +374,8 @@ class FinancialDataLoader:
 
         dataframe = dataframe.copy()
 
+        # Normalise header names (strip stray spaces) so the REQUIRED_COLUMNS check is
+        # reliable.
         dataframe.columns = (
             dataframe.columns
             .astype(str)

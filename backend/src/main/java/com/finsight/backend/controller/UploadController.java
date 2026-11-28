@@ -19,6 +19,11 @@ import com.finsight.backend.service.UploadService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * File upload endpoints, mounted under /api/uploads. Importing a CSV/Excel file
+ * creates an UploadHistory record plus its Transactions; the other endpoints read that
+ * history.
+ */
 @RestController
 @RequestMapping("/api/uploads")
 @RequiredArgsConstructor

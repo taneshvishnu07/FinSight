@@ -2,6 +2,11 @@ package com.finsight.backend.service;
 
 import com.finsight.backend.dto.analysis.TransactionAnalysisResponse;
 
+/**
+ * Builds and stores the per-upload analysis (income/expense/savings totals,
+ * subscription and unusual-spending counts, recommendations and alerts).
+ * Implementation: TransactionAnalysisServiceImpl.
+ */
 public interface TransactionAnalysisService {
 
     /*

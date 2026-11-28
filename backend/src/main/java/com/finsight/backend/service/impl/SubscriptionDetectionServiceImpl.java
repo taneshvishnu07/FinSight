@@ -17,6 +17,11 @@ import com.finsight.backend.service.SubscriptionDetectionService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Subscription detection. Unlike the upload-based services it analyses ALL of the
+ * logged-in user's transactions so recurring payments are visible across several
+ * uploaded files.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -26,6 +31,10 @@ public class SubscriptionDetectionServiceImpl implements SubscriptionDetectionSe
     private final UserRepository userRepository;
     private final AiSubscriptionClient aiSubscriptionClient;
 
+    /**
+     * Load every transaction of the user and let the AI service find recurring monthly
+     * subscriptions.
+     */
     @Override
     public SubscriptionDetectionResponse detectSubscriptions() {
         User user = getAuthenticatedUser();
@@ -36,6 +45,11 @@ public class SubscriptionDetectionServiceImpl implements SubscriptionDetectionSe
         return aiSubscriptionClient.detect(transactions);
     }
 
+    /**
+     * Resolve the logged-in user from the Spring SecurityContext (the JWT filter
+     * stores the email there) and load the User. Same helper is repeated in most
+     * service classes.
+     */
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {

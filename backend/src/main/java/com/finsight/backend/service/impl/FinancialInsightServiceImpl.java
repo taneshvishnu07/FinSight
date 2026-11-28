@@ -27,6 +27,18 @@ import com.finsight.backend.service.FinancialInsightService;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * Builds the financial health score and the prioritised insights shown on the
+ * dashboard and report pages (GET /api/insights).
+ *
+ * All calculations are done here on the backend from ALL of the logged-in user's
+ * transactions; the frontend only displays the result. The AI service is not called -
+ * this is plain rule-based Java.
+ *
+ * Output: health score (0-100) and status, savings rate, an overall summary, a list of
+ * insights, and de-duplicated lists of positive behaviours, financial risks and
+ * priority actions.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -39,6 +51,8 @@ public class FinancialInsightServiceImpl
 
     private final FinancialProfileRepository financialProfileRepository;
 
+    // Thresholds (in percent) used by the rules below: a category taking 30%+ of
+    // expenses is "high"; a savings rate of 50%+ is strong and 20%+ is moderate.
     private static final BigDecimal ONE_HUNDRED =
             BigDecimal.valueOf(100);
 
@@ -51,6 +65,12 @@ public class FinancialInsightServiceImpl
     private static final BigDecimal MODERATE_SAVINGS_RATE =
             BigDecimal.valueOf(20);
 
+    /**
+     * Generate insights: load the user's transactions -> compute income, expense,
+     * savings and savings rate -> health score and status -> add insights for savings
+     * behaviour, the biggest spending category (only the top one if it is 30%+ of
+     * expenses), the largest single expense, and likely subscriptions.
+     */
     @Override
     public FinancialInsightResponse generateInsights() {
 
@@ -375,6 +395,10 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * Keep only usable transactions: they must belong to this financial profile and
+     * have an amount.
+     */
     private List<Transaction> filterTransactions(
             List<Transaction> transactions,
             FinancialProfile financialProfile) {
@@ -427,6 +451,10 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * Sum income and expense (absolute amounts, by transaction type) and derive
+     * savings = income - expense. Values are rounded to 2 decimals.
+     */
     private FinancialMetrics calculateMetrics(
             List<Transaction> transactions) {
 
@@ -495,6 +523,9 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * Savings as a percentage of income (2 decimals); 0 when there is no income.
+     */
     private BigDecimal calculateSavingsRate(
             BigDecimal income,
             BigDecimal savings) {
@@ -532,6 +563,13 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * Health score from 0 to 100. Starts at 50, then:
+     *   - savings rate >= 50%: +30; >= 20%: +15
+     *   - expenses <= 50% of income: +15; <= 80%: +5; above 80%: -15
+     * The result is clamped to 0-100. Edit the constants here to change how the score
+     * behaves.
+     */
     private int calculateFinancialHealthScore(
             FinancialMetrics metrics,
             BigDecimal savingsRate) {
@@ -599,6 +637,9 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * Score to label: 80+ EXCELLENT, 65+ GOOD, 50+ FAIR, otherwise NEEDS_ATTENTION.
+     */
     private String determineHealthStatus(
             int score) {
 
@@ -623,6 +664,10 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * One-paragraph summary of status, score, income, expenses, savings and savings
+     * rate.
+     */
     private String buildOverallSummary(
             FinancialMetrics metrics,
             BigDecimal savingsRate,
@@ -660,6 +705,10 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * Expense total per category with its percentage of total expenses, largest first.
+     * Transactions without a category are grouped as UNCATEGORIZED.
+     */
     private List<CategorySpending> calculateCategorySpending(
             List<Transaction> transactions,
             BigDecimal totalExpense) {
@@ -773,6 +822,9 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * The single largest expense (by absolute amount), or null if there are none.
+     */
     private Transaction findLargestExpense(
             List<Transaction> transactions) {
 
@@ -805,6 +857,10 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * Group expense transactions by a cleaned-up merchant name (see
+     * normalizeMerchant).
+     */
     private Map<String, List<Transaction>> groupByMerchant(
             List<Transaction> transactions) {
 
@@ -851,6 +907,14 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * Count merchants that look like subscriptions: at least 3 payments, a known
+     * subscription service, and a monthly pattern.
+     *
+     * NOTE: this is a simpler heuristic than the Python subscription detector, so the
+     * two counts can differ; the AI result is the authoritative one on the analysis
+     * pages.
+     */
     private int countLikelySubscriptions(
             Map<String, List<Transaction>> merchantGroups) {
 
@@ -902,6 +966,10 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * Estimated monthly cost: the sum of the average payment of each likely
+     * subscription.
+     */
     private BigDecimal calculateMonthlySubscriptionCost(
             Map<String, List<Transaction>> merchantGroups) {
 
@@ -958,6 +1026,10 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * True if the merchant name contains a known subscription service (Netflix,
+     * Spotify, Adobe, GitHub, ...). Add new services here.
+     */
     private boolean isKnownSubscriptionMerchant(
             String merchant) {
 
@@ -997,6 +1069,10 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * True if the average gap between payments is 25-35 days (needs at least 3 dated
+     * payments).
+     */
     private boolean hasMonthlyPattern(
             List<Transaction> transactions) {
 
@@ -1070,6 +1146,9 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * Average absolute amount of the given transactions.
+     */
     private BigDecimal calculateAverageAmount(
             List<Transaction> transactions) {
 
@@ -1127,6 +1206,10 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * Build one Insight (type, priority, title, message and optional amount / category
+     * / merchant).
+     */
     private FinancialInsightResponse.Insight createInsight(
             String type,
             String priority,
@@ -1167,6 +1250,10 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * Clean a description so repeated payments to one merchant group together: upper-
+     * case, long reference numbers removed, whitespace tidied.
+     */
     private String normalizeMerchant(
             String description) {
 
@@ -1209,6 +1296,9 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * Remove duplicate strings while keeping the original order.
+     */
     private List<String> removeDuplicates(
             List<String> values) {
 
@@ -1231,6 +1321,9 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * Round to 2 decimals (null becomes zero).
+     */
     private BigDecimal scale(
             BigDecimal value) {
 
@@ -1248,6 +1341,9 @@ public class FinancialInsightServiceImpl
         );
     }
 
+    /**
+     * Round to 2 decimals, keeping null as null.
+     */
     private BigDecimal scaleNullable(
             BigDecimal value) {
 
@@ -1258,6 +1354,9 @@ public class FinancialInsightServiceImpl
         return scale(value);
     }
 
+    /**
+     * Format as "RM x.xx" text for messages.
+     */
     private String formatCurrency(
             BigDecimal value) {
 
@@ -1274,6 +1373,9 @@ public class FinancialInsightServiceImpl
                     .toPlainString();
     }
 
+    /**
+     * Format a number with 2 decimals for messages.
+     */
     private String formatAmount(
             BigDecimal value) {
 
@@ -1289,6 +1391,9 @@ public class FinancialInsightServiceImpl
                 .toPlainString();
     }
 
+    /**
+     * Transaction description for messages, with a fallback when missing.
+     */
     private String safeDescription(
             Transaction transaction) {
 
@@ -1310,6 +1415,9 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * Resolve the logged-in user from the SecurityContext.
+     */
     private User getAuthenticatedUser() {
 
         Authentication authentication =
@@ -1347,6 +1455,9 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * The user's profile (required).
+     */
     private FinancialProfile getFinancialProfile(
             User user) {
 
@@ -1372,6 +1483,9 @@ public class FinancialInsightServiceImpl
      * ============================================================
      */
 
+    /**
+     * Simple holder for the totals used while scoring.
+     */
     private static class FinancialMetrics {
 
         private BigDecimal totalIncome =
@@ -1384,6 +1498,9 @@ public class FinancialInsightServiceImpl
                 BigDecimal.ZERO;
     }
 
+    /**
+     * Simple holder: category name, amount and share of total expenses.
+     */
     private static class CategorySpending {
 
         private String category;

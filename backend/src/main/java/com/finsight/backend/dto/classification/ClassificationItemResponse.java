@@ -6,6 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * Classification of one transaction. `source` says which AI stage decided; `updated`
+ * is added by the backend and tells whether the stored category changed.
+ */
 @Getter
 @Setter
 @NoArgsConstructor

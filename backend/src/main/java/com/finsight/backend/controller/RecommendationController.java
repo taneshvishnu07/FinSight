@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Recommendations for an upload, mounted under /api/recommendations.
+ */
 @RestController
 @RequestMapping("/api/recommendations")
 @RequiredArgsConstructor
@@ -16,6 +19,9 @@ public class RecommendationController {
     private final RecommendationService recommendationService;
 
 
+    /**
+     * GET /api/recommendations/{uploadHistoryId} - read the saved recommendations.
+     */
     @GetMapping("/{uploadHistoryId}")
     public ResponseEntity<RecommendationResponse>
             getRecommendations(
@@ -26,6 +32,10 @@ public class RecommendationController {
         );
     }
 
+    /**
+     * POST /api/recommendations/generate/{uploadHistoryId} - ask the AI service for
+     * fresh recommendations and save them.
+     */
     @PostMapping("/generate/{uploadHistoryId}")
     public ResponseEntity<RecommendationResponse>
             generateRecommendations(

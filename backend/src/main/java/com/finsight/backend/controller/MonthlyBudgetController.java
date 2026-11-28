@@ -22,6 +22,11 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Per-month budgets (e.g. 2026-03 -> RM 2000) for the logged-in user, mounted under
+ * /api/monthly-budgets. Unlike most controllers it talks to repositories directly. The
+ * class is @Transactional, so every request runs in one database transaction.
+ */
 @RestController
 @RequestMapping("/api/monthly-budgets")
 @RequiredArgsConstructor
@@ -55,6 +60,10 @@ public class MonthlyBudgetController {
         return profiles.findByUser(user).orElse(null);
     }
 
+    /**
+     * Like findProfile() but answers 409 Conflict when the user has not saved a
+     * profile yet (budgets are stored on the profile).
+     */
     private FinancialProfile requireProfile() {
         FinancialProfile profile = findProfile();
         if (profile == null) {
@@ -66,6 +75,10 @@ public class MonthlyBudgetController {
         return profile;
     }
 
+    /**
+     * GET /api/monthly-budgets - all budgets, oldest month first. Returns an empty
+     * list (not an error) when there is no profile yet.
+     */
     @GetMapping
     @Transactional(readOnly = true)
     public List<MonthlyBudgetResponse> all() {
@@ -81,12 +94,20 @@ public class MonthlyBudgetController {
                 .toList();
     }
 
+    /**
+     * PUT /api/monthly-budgets - create or update the budget for one month (upsert by
+     * month).
+     */
     @PutMapping
     public MonthlyBudgetResponse save(@Valid @RequestBody MonthlyBudgetRequest request) {
         MonthlyBudget budget = saveOne(requireProfile(), request);
         return toResponse(budget);
     }
 
+    /**
+     * PUT /api/monthly-budgets/bulk - upsert several months at once; at least one
+     * entry is required.
+     */
     @PutMapping("/bulk")
     public List<MonthlyBudgetResponse> saveBulk(
             @RequestBody @Valid List<@Valid MonthlyBudgetRequest> requests) {
@@ -105,6 +126,10 @@ public class MonthlyBudgetController {
                 .toList();
     }
 
+    /**
+     * DELETE /api/monthly-budgets/{id} - delete a budget. 404 if it does not exist,
+     * 403 if it belongs to another user's profile.
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         FinancialProfile financialProfile = requireProfile();
@@ -128,6 +153,11 @@ public class MonthlyBudgetController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Validate and upsert one month: the amount must be a whole number >= 0 (stored
+     * with scale 0). An existing row for the same profile and month is updated,
+     * otherwise a new one is created.
+     */
     private MonthlyBudget saveOne(
             FinancialProfile financialProfile,
             MonthlyBudgetRequest request) {
@@ -162,6 +192,9 @@ public class MonthlyBudgetController {
         return repo.save(budget);
     }
 
+    /**
+     * Entity to API response.
+     */
     private MonthlyBudgetResponse toResponse(MonthlyBudget budget) {
         return new MonthlyBudgetResponse(
                 budget.getId(),

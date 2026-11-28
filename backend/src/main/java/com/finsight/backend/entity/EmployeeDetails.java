@@ -12,6 +12,11 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 
+/**
+ * Extra profile data for employees (table `employee_details`): occupation, company,
+ * monthly salary and side-income flag. The salary is compared with recorded income by
+ * the AI service rules.
+ */
 @Entity
 @Table(name = "employee_details")
 public class EmployeeDetails extends BaseEntity {

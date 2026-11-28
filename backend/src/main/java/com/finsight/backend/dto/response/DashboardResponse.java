@@ -5,6 +5,10 @@ import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Summary figures for the dashboard (income, expense, savings and counts). NOTE: not
+ * referenced by any controller or service at the moment.
+ */
 @Getter
 @Setter
 public class DashboardResponse {
